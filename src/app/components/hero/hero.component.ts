@@ -419,8 +419,6 @@ export class HeroComponent implements OnInit, OnDestroy {
     'Full Stack .NET Developer',
     'Backend Engineer',
     'Angular Developer',
-    'Blazor Specialist',
-    'Problem Solver',
   ];
 
   displayText = signal('');
