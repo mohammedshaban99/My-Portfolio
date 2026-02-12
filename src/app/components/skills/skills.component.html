@@ -1,0 +1,23 @@
+<section id="skills" class="section" aria-labelledby="skills-heading">
+  <div class="section__container">
+    <h2 id="skills-heading" class="section__heading">
+      <span class="section__heading-number">02.</span>
+      Skills &amp; Technologies
+      <span class="section__heading-line"></span>
+    </h2>
+
+    <div class="skills__grid">
+      @for (category of categories; track category.title) {
+        <div class="skills__card">
+          <div class="skills__card-icon">{{ category.icon }}</div>
+          <h3 class="skills__card-title">{{ category.title }}</h3>
+          <ul class="skills__list" role="list">
+            @for (skill of category.skills; track skill) {
+              <li class="skills__item">{{ skill }}</li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  </div>
+</section>

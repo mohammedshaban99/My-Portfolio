@@ -23,25 +23,7 @@ import { FooterComponent } from './components/footer/footer.component';
     ContactComponent,
     FooterComponent,
   ],
-  template: `
-    <app-navbar />
-    <main>
-      <app-hero />
-      <app-about />
-      <app-skills />
-      <app-experience />
-      <app-projects />
-      <app-education />
-      <app-contact />
-    </main>
-    <app-footer />
-  `,
-  styles: [
-    `
-      :host {
-        display: block;
-      }
-    `,
-  ],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent {}
