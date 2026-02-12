@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
       <div class="section__container">
         <h2 id="experience-heading" class="section__heading">
           <span class="section__heading-number">03.</span>
-          Where I've Worked
+          Experience
           <span class="section__heading-line"></span>
         </h2>
 
