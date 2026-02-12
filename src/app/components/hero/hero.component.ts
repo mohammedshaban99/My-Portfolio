@@ -43,7 +43,7 @@ import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 
         <div class="hero__stats">
           <div class="hero__stat">
-            <span class="hero__stat-number">2+</span>
+            <span class="hero__stat-number">1+</span>
             <span class="hero__stat-label">Years Experience</span>
           </div>
           <div class="hero__stat-divider"></div>
