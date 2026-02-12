@@ -68,7 +68,7 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "disableHostCheck": true
+            "allowedHosts": true
           }
         }
       }
