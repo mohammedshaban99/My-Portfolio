@@ -417,10 +417,8 @@ import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 export class HeroComponent implements OnInit, OnDestroy {
   titles = [
     'Full Stack .NET Developer',
-    'Backend Engineer',
+    'Software Engineer',
     'Angular Developer',
-    'Blazor Specialist',
-    'Problem Solver',
   ];
 
   displayText = signal('');

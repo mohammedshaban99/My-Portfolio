@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
     >
       <nav class="navbar__inner" aria-label="Main navigation">
         <a href="#" class="navbar__logo" aria-label="Home">
-          <span class="navbar__logo-bracket">&lt;</span>MS<span class="navbar__logo-bracket"> /&gt;</span>
+          <svg class="navbar__logo-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
         </a>
 
         <button
@@ -41,7 +41,6 @@ import { CommonModule } from '@angular/common';
                 class="navbar__link"
                 (click)="closeMenu()"
               >
-                <span class="navbar__link-number">{{ link.number }}</span>
                 {{ link.label }}
               </a>
             </li>
@@ -92,19 +91,19 @@ import { CommonModule } from '@angular/common';
       }
 
       .navbar__logo {
-        font-family: var(--font-mono);
-        font-size: 1.25rem;
-        font-weight: 500;
-        color: var(--text-primary);
-        letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+        color: var(--accent);
+        transition: opacity 0.2s ease;
       }
 
       .navbar__logo:hover {
-        color: var(--accent);
+        opacity: 0.8;
       }
 
-      .navbar__logo-bracket {
-        color: var(--accent);
+      .navbar__logo-icon {
+        width: 28px;
+        height: 28px;
       }
 
       .navbar__links {
@@ -123,13 +122,6 @@ import { CommonModule } from '@angular/common';
 
       .navbar__link:hover {
         color: var(--accent);
-      }
-
-      .navbar__link-number {
-        font-family: var(--font-mono);
-        font-size: 0.75rem;
-        color: var(--accent);
-        margin-right: 4px;
       }
 
       .navbar__resume-btn {
@@ -211,12 +203,12 @@ export class NavbarComponent {
   menuOpen = signal(false);
 
   navLinks = [
-    { href: '#about', label: 'About', number: '01.' },
-    { href: '#skills', label: 'Skills', number: '02.' },
-    { href: '#experience', label: 'Experience', number: '03.' },
-    { href: '#projects', label: 'Projects', number: '04.' },
-    { href: '#education', label: 'Education', number: '05.' },
-    { href: '#contact', label: 'Contact', number: '06.' },
+    { href: '#about', label: 'About' },
+    { href: '#skills', label: 'Skills' },
+    { href: '#experience', label: 'Experience' },
+    { href: '#projects', label: 'Projects' },
+    { href: '#education', label: 'Education' },
+    { href: '#contact', label: 'Contact' },
   ];
 
   @HostListener('window:scroll')
