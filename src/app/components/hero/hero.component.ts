@@ -1,28 +1,61 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 
 @Component({
   selector: 'app-hero',
   standalone: true,
   template: `
     <section class="hero" aria-label="Introduction">
+      <div class="hero__glow hero__glow--1"></div>
+      <div class="hero__glow hero__glow--2"></div>
+
       <div class="hero__container">
-        <p class="hero__greeting">Hi, my name is</p>
-        <h1 class="hero__name">Mohamed Shaban.</h1>
-        <h2 class="hero__tagline">I build things for the web.</h2>
-        <p class="hero__description">
-          I'm a full-stack .NET developer specializing in building exceptional
-          web applications. Currently focused on creating scalable, secure
-          systems with
-          <strong>ASP.NET Core</strong>, <strong>Angular</strong>, and
-          <strong>Blazor</strong>.
+        <p class="hero__greeting">
+          <span class="hero__greeting-dash">&mdash;</span> Hi, my name is
         </p>
+        <h1 class="hero__name">Mohamed Shaban<span class="hero__dot">.</span></h1>
+
+        <div class="hero__tagline-wrapper">
+          <h2 class="hero__tagline">
+            <span class="hero__tagline-static">I'm a&nbsp;</span>
+            <span class="hero__typed-wrapper">
+              <span class="hero__typed-text">{{ displayText() }}</span>
+              <span class="hero__cursor" [class.hero__cursor--blink]="isWaiting()">|</span>
+            </span>
+          </h2>
+        </div>
+
+        <p class="hero__description">
+          Specializing in building exceptional, scalable web applications
+          with <strong>ASP.NET Core</strong>, <strong>Angular</strong>, and
+          <strong>Blazor</strong>. I transform complex problems into elegant,
+          performant solutions.
+        </p>
+
         <div class="hero__cta">
           <a href="#projects" class="hero__btn hero__btn--primary">
-            View My Work
+            <span class="hero__btn-text">View My Work</span>
+            <svg class="hero__btn-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 17 5-5-5-5"/><path d="m13 17 5-5-5-5"/></svg>
           </a>
           <a href="#contact" class="hero__btn hero__btn--outline">
             Get In Touch
           </a>
+        </div>
+
+        <div class="hero__stats">
+          <div class="hero__stat">
+            <span class="hero__stat-number">2+</span>
+            <span class="hero__stat-label">Years Experience</span>
+          </div>
+          <div class="hero__stat-divider"></div>
+          <div class="hero__stat">
+            <span class="hero__stat-number">10+</span>
+            <span class="hero__stat-label">Projects Built</span>
+          </div>
+          <div class="hero__stat-divider"></div>
+          <div class="hero__stat">
+            <span class="hero__stat-number">6+</span>
+            <span class="hero__stat-label">Technologies</span>
+          </div>
         </div>
       </div>
 
@@ -60,6 +93,31 @@ import { Component } from '@angular/core';
         align-items: center;
         padding: 0 clamp(24px, 5vw, 48px);
         position: relative;
+        overflow: hidden;
+      }
+
+      .hero__glow {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.07;
+        pointer-events: none;
+      }
+
+      .hero__glow--1 {
+        width: 600px;
+        height: 600px;
+        background: var(--accent);
+        top: -200px;
+        right: -100px;
+      }
+
+      .hero__glow--2 {
+        width: 400px;
+        height: 400px;
+        background: #3b82f6;
+        bottom: -100px;
+        left: -100px;
       }
 
       .hero__container {
@@ -67,6 +125,8 @@ import { Component } from '@angular/core';
         margin: 0 auto;
         width: 100%;
         padding-top: 70px;
+        position: relative;
+        z-index: 1;
       }
 
       .hero__greeting {
@@ -74,7 +134,15 @@ import { Component } from '@angular/core';
         font-size: 1rem;
         color: var(--accent);
         margin-bottom: 20px;
-        animation: fadeUp 0.5s ease 0.2s both;
+        animation: fadeUp 0.6s ease 0.2s both;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .hero__greeting-dash {
+        color: var(--accent);
+        font-weight: 300;
       }
 
       .hero__name {
@@ -82,17 +150,54 @@ import { Component } from '@angular/core';
         font-weight: 700;
         color: var(--text-primary);
         line-height: 1.1;
-        margin-bottom: 8px;
-        animation: fadeUp 0.5s ease 0.4s both;
+        margin-bottom: 12px;
+        animation: fadeUp 0.6s ease 0.4s both;
+        letter-spacing: -0.02em;
+      }
+
+      .hero__dot {
+        color: var(--accent);
+      }
+
+      .hero__tagline-wrapper {
+        margin-bottom: 28px;
+        animation: fadeUp 0.6s ease 0.6s both;
       }
 
       .hero__tagline {
-        font-size: clamp(2rem, 5vw, 3.5rem);
-        font-weight: 700;
+        font-size: clamp(1.3rem, 3.5vw, 2.2rem);
+        font-weight: 400;
         color: var(--text-muted);
-        line-height: 1.1;
-        margin-bottom: 24px;
-        animation: fadeUp 0.5s ease 0.6s both;
+        line-height: 1.3;
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+      }
+
+      .hero__tagline-static {
+        color: var(--text-muted);
+      }
+
+      .hero__typed-wrapper {
+        display: inline-flex;
+        align-items: baseline;
+      }
+
+      .hero__typed-text {
+        color: var(--accent);
+        font-weight: 600;
+        position: relative;
+      }
+
+      .hero__cursor {
+        color: var(--accent);
+        font-weight: 300;
+        margin-left: 1px;
+        animation: none;
+      }
+
+      .hero__cursor--blink {
+        animation: blink 0.7s step-end infinite;
       }
 
       .hero__description {
@@ -101,7 +206,7 @@ import { Component } from '@angular/core';
         color: var(--text-secondary);
         line-height: 1.7;
         margin-bottom: 40px;
-        animation: fadeUp 0.5s ease 0.8s both;
+        animation: fadeUp 0.6s ease 0.8s both;
       }
 
       .hero__description strong {
@@ -112,7 +217,8 @@ import { Component } from '@angular/core';
       .hero__cta {
         display: flex;
         gap: 16px;
-        animation: fadeUp 0.5s ease 1s both;
+        animation: fadeUp 0.6s ease 1s both;
+        margin-bottom: 56px;
       }
 
       .hero__btn {
@@ -120,8 +226,10 @@ import { Component } from '@angular/core';
         font-size: 0.875rem;
         padding: 14px 28px;
         border-radius: 4px;
-        transition: all 0.2s ease;
-        display: inline-block;
+        transition: all 0.25s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
       }
 
       .hero__btn--primary {
@@ -134,7 +242,19 @@ import { Component } from '@angular/core';
         background: var(--accent-hover);
         color: var(--bg-deep);
         transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(78, 225, 160, 0.3);
+        box-shadow: 0 4px 24px rgba(78, 225, 160, 0.35);
+      }
+
+      .hero__btn--primary:hover .hero__btn-arrow {
+        transform: translateX(3px);
+      }
+
+      .hero__btn-text {
+        display: inline;
+      }
+
+      .hero__btn-arrow {
+        transition: transform 0.25s ease;
       }
 
       .hero__btn--outline {
@@ -145,6 +265,40 @@ import { Component } from '@angular/core';
       .hero__btn--outline:hover {
         background: var(--accent-dim);
         transform: translateY(-2px);
+      }
+
+      .hero__stats {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        animation: fadeUp 0.6s ease 1.2s both;
+      }
+
+      .hero__stat {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .hero__stat-number {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        letter-spacing: -0.02em;
+      }
+
+      .hero__stat-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .hero__stat-divider {
+        width: 1px;
+        height: 40px;
+        background: var(--border);
       }
 
       .hero__side-email,
@@ -208,10 +362,33 @@ import { Component } from '@angular/core';
         }
       }
 
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+      }
+
       @media (max-width: 1080px) {
         .hero__side-email,
         .hero__side-socials {
           display: none;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .hero__stats {
+          gap: 20px;
+        }
+
+        .hero__stat-number {
+          font-size: 1.35rem;
+        }
+
+        .hero__stat-label {
+          font-size: 0.7rem;
+        }
+
+        .hero__stat-divider {
+          height: 32px;
         }
       }
 
@@ -222,9 +399,84 @@ import { Component } from '@angular/core';
 
         .hero__btn {
           text-align: center;
+          justify-content: center;
+        }
+
+        .hero__stats {
+          flex-wrap: wrap;
+          gap: 16px;
+        }
+
+        .hero__stat-divider {
+          display: none;
         }
       }
     `,
   ],
 })
-export class HeroComponent {}
+export class HeroComponent implements OnInit, OnDestroy {
+  titles = [
+    'Full Stack .NET Developer',
+    'Backend Engineer',
+    'Angular Developer',
+    'Blazor Specialist',
+    'Problem Solver',
+  ];
+
+  displayText = signal('');
+  isWaiting = signal(true);
+
+  private currentIndex = 0;
+  private currentCharIndex = 0;
+  private isDeleting = false;
+  private timeoutId: ReturnType<typeof setTimeout> | null = null;
+  private readonly typeSpeed = 80;
+  private readonly deleteSpeed = 45;
+  private readonly pauseAfterType = 2200;
+  private readonly pauseAfterDelete = 500;
+
+  ngOnInit(): void {
+    this.timeoutId = setTimeout(() => this.type(), 1400);
+  }
+
+  ngOnDestroy(): void {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+  }
+
+  private type(): void {
+    const currentTitle = this.titles[this.currentIndex];
+
+    if (!this.isDeleting) {
+      this.isWaiting.set(false);
+      this.currentCharIndex++;
+      this.displayText.set(currentTitle.substring(0, this.currentCharIndex));
+
+      if (this.currentCharIndex === currentTitle.length) {
+        this.isWaiting.set(true);
+        this.timeoutId = setTimeout(() => {
+          this.isDeleting = true;
+          this.type();
+        }, this.pauseAfterType);
+        return;
+      }
+
+      this.timeoutId = setTimeout(() => this.type(), this.typeSpeed);
+    } else {
+      this.isWaiting.set(false);
+      this.currentCharIndex--;
+      this.displayText.set(currentTitle.substring(0, this.currentCharIndex));
+
+      if (this.currentCharIndex === 0) {
+        this.isDeleting = false;
+        this.currentIndex = (this.currentIndex + 1) % this.titles.length;
+        this.isWaiting.set(true);
+        this.timeoutId = setTimeout(() => this.type(), this.pauseAfterDelete);
+        return;
+      }
+
+      this.timeoutId = setTimeout(() => this.type(), this.deleteSpeed);
+    }
+  }
+}
