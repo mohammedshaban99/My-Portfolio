@@ -31,7 +31,7 @@ export class ProjectsComponent {
         'Stripe',
         'ASP.NET Identity',
       ],
-      github: 'https://github.com/mohammedshaban99',
+      github: 'https://github.com/mohammedshaban99/E_Commerce-Solution',
     },
     {
       title: 'Library Management System',
@@ -45,14 +45,14 @@ export class ProjectsComponent {
         'Repository Pattern',
         'Unit of Work',
       ],
-      github: 'https://github.com/mohammedshaban99',
+      github: 'https://github.com/mohammedshaban99/Employee-Management-System',
     },
     {
       title: 'Online Store',
       description:
         'A modern e-commerce web application built with Angular. A full-featured online shopping platform that allows customers to browse products, filter by category, search for items, manage a shopping cart, and handle user authentication.',
       tech: ['Angular', 'TypeScript', 'Bootstrap', 'REST API', 'RxJS'],
-      github: 'https://github.com/mohammedshaban99',
+      github: 'https://github.com/mohammedshaban99/Online-Store',
     },
   ];
 }
