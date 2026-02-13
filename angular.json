@@ -24,7 +24,7 @@
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "baseHref": "/My-Portfolio/",
-              "deployUrl": "/My-Portfolio/",
+            "deployUrl": "/My-Portfolio/",
             "assets": [
               "src/favicon.ico",
               "src/assets",
