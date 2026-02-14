@@ -3,12 +3,14 @@ import {
   Attribute,
   ChangeDetectorRef,
   DEFAULT_CURRENCY_CODE,
+  DOCUMENT,
   DestroyRef,
   Directive,
   ElementRef,
   Host,
   IMAGE_CONFIG,
   IMAGE_CONFIG_DEFAULTS,
+  INTERNAL_APPLICATION_ERROR_HANDLER,
   Inject,
   Injectable,
   InjectionToken,
@@ -22,7 +24,6 @@ import {
   NgModuleRef$1,
   NgZone,
   Optional,
-  PLATFORM_ID,
   Pipe,
   Renderer2,
   RendererStyleFlags2,
@@ -31,9 +32,6 @@ import {
   TemplateRef,
   Version,
   ViewContainerRef,
-  __async,
-  __spreadProps,
-  __spreadValues,
   booleanAttribute,
   createNgModule,
   findLocaleData,
@@ -60,12 +58,14 @@ import {
   ɵɵinject,
   ɵɵinjectAttribute,
   ɵɵstyleProp
-} from "./chunk-R3JEYSTZ.js";
+} from "./chunk-5IJ2EEYK.js";
+import {
+  __async,
+  __spreadProps,
+  __spreadValues
+} from "./chunk-WDMUDEB6.js";
 
-// node_modules/@angular/common/fesm2022/dom_tokens-rA0ACyx7.mjs
-var DOCUMENT = new InjectionToken(ngDevMode ? "DocumentToken" : "");
-
-// node_modules/@angular/common/fesm2022/location-Dq4mJT-A.mjs
+// node_modules/@angular/common/fesm2022/location.mjs
 var _DOM = null;
 function getDOM() {
   return _DOM;
@@ -552,7 +552,7 @@ function _stripOrigin(baseHref) {
   return baseHref;
 }
 
-// node_modules/@angular/common/fesm2022/common_module-Dx7dWex5.mjs
+// node_modules/@angular/common/fesm2022/common_module.mjs
 var HashLocationStrategy = class _HashLocationStrategy extends LocationStrategy {
   _platformLocation;
   _baseHref = "";
@@ -969,7 +969,7 @@ function getLocaleCurrencies(locale) {
 var getLocalePluralCase2 = getLocalePluralCase;
 function checkFullData(data) {
   if (!data[LocaleDataIndex.ExtraData]) {
-    throw new Error(`Missing extra locale data for the locale "${data[LocaleDataIndex.LocaleId]}". Use "registerLocaleData" to load new data. See the "I18n guide" on angular.io to know more.`);
+    throw new RuntimeError(2303, ngDevMode && `Missing extra locale data for the locale "${data[LocaleDataIndex.LocaleId]}". Use "registerLocaleData" to load new data. See the "I18n guide" on angular.io to know more.`);
   }
 }
 function getLocaleExtraDayPeriodRules(locale) {
@@ -1009,7 +1009,7 @@ function getLastDefinedValue(data, index) {
       return data[i];
     }
   }
-  throw new Error("Locale data API: locale data undefined");
+  throw new RuntimeError(2304, ngDevMode && "Locale data API: locale data undefined");
 }
 function extractTime(time) {
   const [h, m] = time.split(":");
@@ -1067,6 +1067,9 @@ function formatDate(value, format, locale, timezone) {
       break;
     }
   }
+  if (typeof ngDevMode === "undefined" || ngDevMode) {
+    assertValidDateFormat(parts);
+  }
   let dateTimezoneOffset = date.getTimezoneOffset();
   if (timezone) {
     dateTimezoneOffset = timezoneToOffset(timezone, dateTimezoneOffset);
@@ -1078,6 +1081,16 @@ function formatDate(value, format, locale, timezone) {
     text += dateFormatter ? dateFormatter(date, locale, dateTimezoneOffset) : value2 === "''" ? "'" : value2.replace(/(^'|'$)/g, "").replace(/''/g, "'");
   });
   return text;
+}
+function assertValidDateFormat(parts) {
+  if (parts.some((part) => /^Y+$/.test(part)) && !parts.some((part) => /^w+$/.test(part))) {
+    const message = `Suspicious use of week-based year "Y" in date pattern "${parts.join("")}". Did you mean to use calendar year "y" instead?`;
+    if (parts.length === 1) {
+      console.error(formatRuntimeError(2300, message));
+    } else {
+      throw new RuntimeError(2300, message);
+    }
+  }
 }
 function createDate(year, month, date) {
   const newDate = /* @__PURE__ */ new Date(0);
@@ -1210,7 +1223,7 @@ function getDatePart(part, date) {
     case 7:
       return date.getDay();
     default:
-      throw new Error(`Unknown DateType value "${part}".`);
+      throw new RuntimeError(2301, ngDevMode && `Unknown DateType value "${part}".`);
   }
 }
 function dateStrGetter(name, width, form = FormStyle.Format, extended = false) {
@@ -1258,7 +1271,7 @@ function getDateTranslation(date, locale, name, width, form, extended) {
       return getLocaleEraNames(locale, width)[date.getFullYear() <= 0 ? 0 : 1];
     default:
       const unexpected = name;
-      throw new Error(`unexpected translation type ${unexpected}`);
+      throw new RuntimeError(2302, ngDevMode && `unexpected translation type ${unexpected}`);
   }
 }
 function timeZoneGetter(width) {
@@ -1280,7 +1293,7 @@ function timeZoneGetter(width) {
           return (zone >= 0 ? "+" : "") + padNumber(hours, 2, minusSign) + ":" + padNumber(Math.abs(zone % 60), 2, minusSign);
         }
       default:
-        throw new Error(`Unknown zone width "${width}"`);
+        throw new RuntimeError(2310, ngDevMode && `Unknown zone width "${width}"`);
     }
   };
 }
@@ -1610,7 +1623,7 @@ function toDate(value) {
   }
   const date = new Date(value);
   if (!isDate(date)) {
-    throw new Error(`Unable to convert "${value}" into a date`);
+    throw new RuntimeError(2311, ngDevMode && `Unable to convert "${value}" into a date`);
   }
   return date;
 }
@@ -1660,7 +1673,7 @@ function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimal
     if (digitsInfo) {
       const parts = digitsInfo.match(NUMBER_FORMAT_REGEXP);
       if (parts === null) {
-        throw new Error(`${digitsInfo} is not a valid digit info`);
+        throw new RuntimeError(2306, ngDevMode && `${digitsInfo} is not a valid digit info`);
       }
       const minIntPart = parts[1];
       const minFractionPart = parts[3];
@@ -1837,7 +1850,7 @@ function parseNumber(num) {
 }
 function roundNumber(parsedNumber, minFrac, maxFrac) {
   if (minFrac > maxFrac) {
-    throw new Error(`The minimum number of digits after fraction (${minFrac}) is higher than the maximum (${maxFrac}).`);
+    throw new RuntimeError(2307, ngDevMode && `The minimum number of digits after fraction (${minFrac}) is higher than the maximum (${maxFrac}).`);
   }
   let digits = parsedNumber.digits;
   let fractionLen = digits.length - parsedNumber.integerLen;
@@ -1891,7 +1904,7 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
 function parseIntAutoRadix(text) {
   const result = parseInt(text);
   if (isNaN(result)) {
-    throw new Error("Invalid integer literal when parsing " + text);
+    throw new RuntimeError(2305, ngDevMode && "Invalid integer literal when parsing " + text);
   }
   return result;
 }
@@ -1935,7 +1948,7 @@ function getPluralCategory(value, cases, ngLocalization, locale) {
   if (cases.indexOf("other") > -1) {
     return "other";
   }
-  throw new Error(`No plural message found for value "${value}"`);
+  throw new RuntimeError(2308, ngDevMode && `No plural message found for value "${value}"`);
 }
 var NgLocaleLocalization = class _NgLocaleLocalization extends NgLocalization {
   locale;
@@ -2125,6 +2138,7 @@ var NgComponentOutlet = class _NgComponentOutlet {
   ngComponentOutlet = null;
   ngComponentOutletInputs;
   ngComponentOutletInjector;
+  ngComponentOutletEnvironmentInjector;
   ngComponentOutletContent;
   ngComponentOutletNgModule;
   /**
@@ -2153,7 +2167,7 @@ var NgComponentOutlet = class _NgComponentOutlet {
     return changes["ngComponentOutletNgModule"] !== void 0 || changes["ngComponentOutletNgModuleFactory"] !== void 0;
   }
   _needToReCreateComponentInstance(changes) {
-    return changes["ngComponentOutlet"] !== void 0 || changes["ngComponentOutletContent"] !== void 0 || changes["ngComponentOutletInjector"] !== void 0 || this._needToReCreateNgModuleInstance(changes);
+    return changes["ngComponentOutlet"] !== void 0 || changes["ngComponentOutletContent"] !== void 0 || changes["ngComponentOutletInjector"] !== void 0 || changes["ngComponentOutletEnvironmentInjector"] !== void 0 || this._needToReCreateNgModuleInstance(changes);
   }
   /** @docs-private */
   ngOnChanges(changes) {
@@ -2176,7 +2190,8 @@ var NgComponentOutlet = class _NgComponentOutlet {
         this._componentRef = this._viewContainerRef.createComponent(this.ngComponentOutlet, {
           injector,
           ngModuleRef: this._moduleRef,
-          projectableNodes: this.ngComponentOutletContent
+          projectableNodes: this.ngComponentOutletContent,
+          environmentInjector: this.ngComponentOutletEnvironmentInjector
         });
       }
     }
@@ -2217,6 +2232,7 @@ var NgComponentOutlet = class _NgComponentOutlet {
       ngComponentOutlet: "ngComponentOutlet",
       ngComponentOutletInputs: "ngComponentOutletInputs",
       ngComponentOutletInjector: "ngComponentOutletInjector",
+      ngComponentOutletEnvironmentInjector: "ngComponentOutletEnvironmentInjector",
       ngComponentOutletContent: "ngComponentOutletContent",
       ngComponentOutletNgModule: "ngComponentOutletNgModule",
       ngComponentOutletNgModuleFactory: "ngComponentOutletNgModuleFactory"
@@ -2242,6 +2258,9 @@ var NgComponentOutlet = class _NgComponentOutlet {
       type: Input
     }],
     ngComponentOutletInjector: [{
+      type: Input
+    }],
+    ngComponentOutletEnvironmentInjector: [{
       type: Input
     }],
     ngComponentOutletContent: [{
@@ -2294,6 +2313,7 @@ var NgForOf = class _NgForOf {
   /**
    * The value of the iterable expression, which can be used as a
    * [template input variable](guide/directives/structural-directives#shorthand).
+   * @deprecated The `ngFor` directive is deprecated. Use the `@for` block instead.
    */
   set ngForOf(ngForOf) {
     this._ngForOf = ngForOf;
@@ -2316,10 +2336,11 @@ var NgForOf = class _NgForOf {
    * and the iterable is recreated and re-rendered, but most of the data is still the same).
    *
    * @see {@link TrackByFunction}
+   * @deprecated The `ngFor` directive is deprecated. Use the `@for` block instead.
    */
   set ngForTrackBy(fn) {
     if ((typeof ngDevMode === "undefined" || ngDevMode) && fn != null && typeof fn !== "function") {
-      console.warn(`trackBy must be a function, but received ${JSON.stringify(fn)}. See https://angular.io/api/common/NgForOf#change-propagation for more information.`);
+      console.warn(`trackBy must be a function, but received ${JSON.stringify(fn)}. See https://angular.dev/api/common/NgForOf#change-propagation for more information.`);
     }
     this._trackByFn = fn;
   }
@@ -2340,6 +2361,7 @@ var NgForOf = class _NgForOf {
   /**
    * A reference to the template that is stamped out for each item in the iterable.
    * @see [template reference variable](guide/templates/variables#template-reference-variables)
+   * @deprecated The `ngFor` directive is deprecated. Use the `@for` block instead.
    */
   set ngForTemplate(value) {
     if (value) {
@@ -2465,6 +2487,7 @@ var NgIf = class _NgIf {
   }
   /**
    * The Boolean expression to evaluate as the condition for showing a template.
+   * @deprecated Use the `@if` block instead. Intent to remove in v22
    */
   set ngIf(condition) {
     this._context.$implicit = this._context.ngIf = condition;
@@ -2472,6 +2495,7 @@ var NgIf = class _NgIf {
   }
   /**
    * A template to show if the condition expression evaluates to true.
+   * @deprecated Use the `@if` block instead. Intent to remove in v22
    */
   set ngIfThen(templateRef) {
     assertTemplate(templateRef, (typeof ngDevMode === "undefined" || ngDevMode) && "ngIfThen");
@@ -2481,6 +2505,7 @@ var NgIf = class _NgIf {
   }
   /**
    * A template to show if the condition expression evaluates to false.
+   * @deprecated Use the `@if` block instead. Intent to remove in v22
    */
   set ngIfElse(templateRef) {
     assertTemplate(templateRef, (typeof ngDevMode === "undefined" || ngDevMode) && "ngIfElse");
@@ -2602,6 +2627,7 @@ var NgSwitch = class _NgSwitch {
   _lastCaseCheckIndex = 0;
   _lastCasesMatched = false;
   _ngSwitch;
+  /** @deprecated Use the `@switch` block instead. Intent to remove in v22 */
   set ngSwitch(newValue) {
     this._ngSwitch = newValue;
     if (this._caseCount === 0) {
@@ -2664,6 +2690,7 @@ var NgSwitchCase = class _NgSwitchCase {
   _view;
   /**
    * Stores the HTML template to be selected on match.
+   * @deprecated Use the `@case` block within a `@switch` block instead. Intent to remove in v22
    */
   ngSwitchCase;
   constructor(viewContainer, templateRef, ngSwitch) {
@@ -3015,12 +3042,10 @@ function invalidPipeArgumentError(type, value) {
   return new RuntimeError(2100, ngDevMode && `InvalidPipeArgument: '${value}' for pipe '${stringify(type)}'`);
 }
 var SubscribableStrategy = class {
-  createSubscription(async, updateLatestValue) {
+  createSubscription(async, updateLatestValue, onError) {
     return untracked(() => async.subscribe({
       next: updateLatestValue,
-      error: (e) => {
-        throw e;
-      }
+      error: onError
     }));
   }
   dispose(subscription) {
@@ -3028,18 +3053,17 @@ var SubscribableStrategy = class {
   }
 };
 var PromiseStrategy = class {
-  createSubscription(async, updateLatestValue) {
+  createSubscription(async, updateLatestValue, onError) {
     async.then(
       // Using optional chaining because we may have set it to `null`; since the promise
       // is async, the view might be destroyed by the time the promise resolves.
       (v) => updateLatestValue?.(v),
-      (e) => {
-        throw e;
-      }
+      (e) => onError?.(e)
     );
     return {
       unsubscribe: () => {
         updateLatestValue = null;
+        onError = null;
       }
     };
   }
@@ -3056,6 +3080,7 @@ var AsyncPipe = class _AsyncPipe {
   _subscription = null;
   _obj = null;
   _strategy = null;
+  applicationErrorHandler = inject(INTERNAL_APPLICATION_ERROR_HANDLER);
   constructor(ref) {
     this._ref = ref;
   }
@@ -3086,7 +3111,7 @@ var AsyncPipe = class _AsyncPipe {
   _subscribe(obj) {
     this._obj = obj;
     this._strategy = this._selectStrategy(obj);
-    this._subscription = this._strategy.createSubscription(obj, (value) => this._updateLatestValue(obj, value));
+    this._subscription = this._strategy.createSubscription(obj, (value) => this._updateLatestValue(obj, value), (e) => this.applicationErrorHandler(e));
   }
   _selectStrategy(obj) {
     if (isPromise(obj)) {
@@ -3546,7 +3571,7 @@ var CurrencyPipe = class _CurrencyPipe {
     if (!isValue(value)) return null;
     locale ||= this._locale;
     if (typeof display === "boolean") {
-      if ((typeof ngDevMode === "undefined" || ngDevMode) && console && console.warn) {
+      if (typeof ngDevMode === "undefined" || ngDevMode) {
         console.warn(`Warning: the currency pipe has been changed in Angular v5. The symbolDisplay option (third parameter) is now a string instead of a boolean. The accepted values are "code", "symbol" or "symbol-narrow".`);
       }
       display = display ? "symbol" : "code";
@@ -3603,7 +3628,7 @@ function strToNumber(value) {
     return Number(value);
   }
   if (typeof value !== "number") {
-    throw new Error(`${value} is not a number`);
+    throw new RuntimeError(2309, ngDevMode && `${value} is not a number`);
   }
   return value;
 }
@@ -3656,7 +3681,7 @@ var CommonModule = class _CommonModule {
   }], null, null);
 })();
 
-// node_modules/@angular/common/fesm2022/xhr-BfNfxNDv.mjs
+// node_modules/@angular/common/fesm2022/xhr.mjs
 function parseCookieValue(cookieStr, name) {
   name = encodeURIComponent(name);
   for (const cookie of cookieStr.split(";")) {
@@ -3668,18 +3693,10 @@ function parseCookieValue(cookieStr, name) {
   }
   return null;
 }
-var PLATFORM_BROWSER_ID = "browser";
-var PLATFORM_SERVER_ID = "server";
-function isPlatformBrowser(platformId) {
-  return platformId === PLATFORM_BROWSER_ID;
-}
-function isPlatformServer(platformId) {
-  return platformId === PLATFORM_SERVER_ID;
-}
 var XhrFactory = class {
 };
 
-// node_modules/@angular/common/fesm2022/platform_navigation-B45Jeakb.mjs
+// node_modules/@angular/common/fesm2022/platform_navigation.mjs
 var PlatformNavigation = class _PlatformNavigation {
   static ɵfac = function PlatformNavigation_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _PlatformNavigation)();
@@ -3704,7 +3721,15 @@ var PlatformNavigation = class _PlatformNavigation {
 function registerLocaleData2(data, localeId, extraData) {
   return registerLocaleData(data, localeId, extraData);
 }
-var VERSION = new Version("19.2.18");
+var PLATFORM_BROWSER_ID = "browser";
+var PLATFORM_SERVER_ID = "server";
+function isPlatformBrowser(platformId) {
+  return platformId === PLATFORM_BROWSER_ID;
+}
+function isPlatformServer(platformId) {
+  return platformId === PLATFORM_SERVER_ID;
+}
+var VERSION = new Version("20.3.16");
 var ViewportScroller = class _ViewportScroller {
   // De-sugared tree-shakable injection
   // See #23917
@@ -3750,8 +3775,11 @@ var BrowserViewportScroller = class {
    * Sets the scroll position.
    * @param position The new position in screen coordinates.
    */
-  scrollToPosition(position) {
-    this.window.scrollTo(position[0], position[1]);
+  scrollToPosition(position, options) {
+    this.window.scrollTo(__spreadProps(__spreadValues({}, options), {
+      left: position[0],
+      top: position[1]
+    }));
   }
   /**
    * Scrolls to an element and attempts to focus the element.
@@ -3764,10 +3792,10 @@ var BrowserViewportScroller = class {
    * @see https://html.spec.whatwg.org/#the-indicated-part-of-the-document
    * @see https://html.spec.whatwg.org/#scroll-to-fragid
    */
-  scrollToAnchor(target) {
+  scrollToAnchor(target, options) {
     const elSelected = findAnchorFromDocument(this.document, target);
     if (elSelected) {
-      this.scrollToElement(elSelected);
+      this.scrollToElement(elSelected, options);
       elSelected.focus();
     }
   }
@@ -3775,7 +3803,11 @@ var BrowserViewportScroller = class {
    * Disables automatic scroll restoration provided by the browser.
    */
   setHistoryScrollRestoration(scrollRestoration) {
-    this.window.history.scrollRestoration = scrollRestoration;
+    try {
+      this.window.history.scrollRestoration = scrollRestoration;
+    } catch {
+      console.warn(formatRuntimeError(2400, ngDevMode && "Failed to set `window.history.scrollRestoration`. This may occur when:\n• The script is running inside a sandboxed iframe\n• The window is partially navigated or inactive\n• The script is executed in an untrusted or special context (e.g., test runners, browser extensions, or content previews)\nScroll position may not be preserved across navigation."));
+    }
   }
   /**
    * Scrolls to an element using the native offset and the specified offset set on this scroller.
@@ -3783,12 +3815,15 @@ var BrowserViewportScroller = class {
    * The offset can be used when we know that there is a floating header and scrolling naively to an
    * element (ex: `scrollIntoView`) leaves the element hidden behind the floating header.
    */
-  scrollToElement(el) {
+  scrollToElement(el, options) {
     const rect = el.getBoundingClientRect();
     const left = rect.left + this.window.pageXOffset;
     const top = rect.top + this.window.pageYOffset;
     const offset = this.offset();
-    this.window.scrollTo(left - offset[0], top - offset[1]);
+    this.window.scrollTo(__spreadProps(__spreadValues({}, options), {
+      left: left - offset[0],
+      top: top - offset[1]
+    }));
   }
 };
 function findAnchorFromDocument(document, target) {
@@ -4039,14 +4074,11 @@ function assertDevMode(checkName) {
 var LCPImageObserver = class _LCPImageObserver {
   // Map of full image URLs -> original `ngSrc` values.
   images = /* @__PURE__ */ new Map();
-  window = null;
+  window = inject(DOCUMENT).defaultView;
   observer = null;
   constructor() {
-    const isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
     assertDevMode("LCP checker");
-    const win = inject(DOCUMENT).defaultView;
-    if (isBrowser && typeof PerformanceObserver !== "undefined") {
-      this.window = win;
+    if (typeof PerformanceObserver !== "undefined") {
       this.observer = this.initPerformanceObserver();
     }
   }
@@ -4132,7 +4164,7 @@ function logModifiedWarning(ngSrc) {
   const directiveDetails = imgDirectiveDetails(ngSrc);
   console.warn(formatRuntimeError(2964, `${directiveDetails} this image is the Largest Contentful Paint (LCP) element and has had its "ngSrc" attribute modified. This can cause slower loading performance. It is recommended not to modify the "ngSrc" property on any image which could be the LCP element.`));
 }
-var INTERNAL_PRECONNECT_CHECK_BLOCKLIST = /* @__PURE__ */ new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
+var INTERNAL_PRECONNECT_CHECK_BLOCKLIST = /* @__PURE__ */ new Set(["localhost", "127.0.0.1", "0.0.0.0", "[::1]"]);
 var PRECONNECT_CHECK_BLOCKLIST = new InjectionToken(ngDevMode ? "PRECONNECT_CHECK_BLOCKLIST" : "");
 var PreconnectLinkChecker = class _PreconnectLinkChecker {
   document = inject(DOCUMENT);
@@ -4293,7 +4325,6 @@ var ASPECT_RATIO_TOLERANCE = 0.1;
 var OVERSIZED_IMAGE_TOLERANCE = 1e3;
 var FIXED_SRCSET_WIDTH_LIMIT = 1920;
 var FIXED_SRCSET_HEIGHT_LIMIT = 1080;
-var PLACEHOLDER_BLUR_AMOUNT = 15;
 var PLACEHOLDER_DIMENSION_LIMIT = 1e3;
 var DATA_URL_WARN_LIMIT = 4e3;
 var DATA_URL_ERROR_LIMIT = 1e4;
@@ -4306,6 +4337,7 @@ var NgOptimizedImage = class _NgOptimizedImage {
   renderer = inject(Renderer2);
   imgElement = inject(ElementRef).nativeElement;
   injector = inject(Injector);
+  destroyRef = inject(DestroyRef);
   // An LCP image observer should be injected only in development mode.
   // Do not assign it to `null` to avoid having a redundant property in the production bundle.
   lcpObserver;
@@ -4349,6 +4381,17 @@ var NgOptimizedImage = class _NgOptimizedImage {
    * For fixed size images: the desired rendered height of the image in pixels.
    */
   height;
+  /**
+   * The desired decoding behavior for the image. Defaults to `auto`
+   * if not explicitly set, matching native browser behavior.
+   *
+   * Use `async` to decode the image off the main thread (non-blocking),
+   * `sync` for immediate decoding (blocking), or `auto` to let the
+   * browser decide the optimal strategy.
+   *
+   * [Spec](https://html.spec.whatwg.org/multipage/images.html#image-decoding-hint)
+   */
+  decoding;
   /**
    * The desired loading behavior (lazy, eager, or auto). Defaults to `lazy`,
    * which is recommended for most images.
@@ -4401,8 +4444,7 @@ var NgOptimizedImage = class _NgOptimizedImage {
   constructor() {
     if (ngDevMode) {
       this.lcpObserver = this.injector.get(LCPImageObserver);
-      const destroyRef = inject(DestroyRef);
-      destroyRef.onDestroy(() => {
+      this.destroyRef.onDestroy(() => {
         if (!this.priority && this._renderedSrc !== null) {
           this.lcpObserver.unregisterImage(this._renderedSrc);
         }
@@ -4424,7 +4466,7 @@ var NgOptimizedImage = class _NgOptimizedImage {
       assertNotBlobUrl(this);
       if (this.fill) {
         assertEmptyWidthAndHeight(this);
-        ngZone.runOutsideAngular(() => assertNonZeroRenderedHeight(this, this.imgElement, this.renderer));
+        ngZone.runOutsideAngular(() => assertNonZeroRenderedHeight(this, this.imgElement, this.renderer, this.destroyRef));
       } else {
         assertNonEmptyWidthAndHeight(this);
         if (this.height !== void 0) {
@@ -4433,9 +4475,10 @@ var NgOptimizedImage = class _NgOptimizedImage {
         if (this.width !== void 0) {
           assertGreaterThanZero(this, this.width, "width");
         }
-        ngZone.runOutsideAngular(() => assertNoImageDistortion(this, this.imgElement, this.renderer));
+        ngZone.runOutsideAngular(() => assertNoImageDistortion(this, this.imgElement, this.renderer, this.destroyRef));
       }
       assertValidLoadingInput(this);
+      assertValidDecodingInput(this);
       if (!this.ngSrcset) {
         assertNoComplexSizes(this);
       }
@@ -4469,6 +4512,7 @@ var NgOptimizedImage = class _NgOptimizedImage {
     }
     this.setHostAttribute("loading", this.getLoadingBehavior());
     this.setHostAttribute("fetchpriority", this.getFetchPriority());
+    this.setHostAttribute("decoding", this.getDecoding());
     this.setHostAttribute("ng-img", "true");
     const rewrittenSrcset = this.updateSrcAndSrcset();
     if (this.sizes) {
@@ -4524,6 +4568,12 @@ var NgOptimizedImage = class _NgOptimizedImage {
   }
   getFetchPriority() {
     return this.priority ? "high" : "auto";
+  }
+  getDecoding() {
+    if (this.priority) {
+      return "sync";
+    }
+    return this.decoding ?? "auto";
   }
   getRewrittenSrc() {
     if (!this._renderedSrc) {
@@ -4638,6 +4688,10 @@ var NgOptimizedImage = class _NgOptimizedImage {
     };
     const removeLoadListenerFn = this.renderer.listen(img, "load", callback);
     const removeErrorListenerFn = this.renderer.listen(img, "error", callback);
+    this.destroyRef.onDestroy(() => {
+      removeLoadListenerFn();
+      removeErrorListenerFn();
+    });
     callOnLoadIfImageIsLoaded(img, callback);
   }
   setHostAttribute(name, value) {
@@ -4661,6 +4715,7 @@ var NgOptimizedImage = class _NgOptimizedImage {
       sizes: "sizes",
       width: [2, "width", "width", numberAttribute],
       height: [2, "height", "height", numberAttribute],
+      decoding: "decoding",
       loading: "loading",
       priority: [2, "priority", "priority", booleanAttribute],
       loaderParams: "loaderParams",
@@ -4688,7 +4743,7 @@ var NgOptimizedImage = class _NgOptimizedImage {
         "[style.background-position]": 'placeholder ? "50% 50%" : null',
         "[style.background-repeat]": 'placeholder ? "no-repeat" : null',
         "[style.background-image]": "placeholder ? generatePlaceholder(placeholder) : null",
-        "[style.filter]": `placeholder && shouldBlurPlaceholder(placeholderConfig) ? "blur(${PLACEHOLDER_BLUR_AMOUNT}px)" : null`
+        "[style.filter]": 'placeholder && shouldBlurPlaceholder(placeholderConfig) ? "blur(15px)" : null'
       }
     }]
   }], () => [], {
@@ -4716,6 +4771,9 @@ var NgOptimizedImage = class _NgOptimizedImage {
       args: [{
         transform: numberAttribute
       }]
+    }],
+    decoding: [{
+      type: Input
     }],
     loading: [{
       type: Input
@@ -4877,7 +4935,7 @@ function assertGreaterThanZero(dir, inputValue, inputName) {
     throw new RuntimeError(2952, `${imgDirectiveDetails(dir.ngSrc)} \`${inputName}\` has an invalid value. To fix this, provide \`${inputName}\` as a number greater than 0.`);
   }
 }
-function assertNoImageDistortion(dir, img, renderer) {
+function assertNoImageDistortion(dir, img, renderer, destroyRef) {
   const callback = () => {
     removeLoadListenerFn();
     removeErrorListenerFn();
@@ -4932,6 +4990,10 @@ Note: Recommended intrinsic image size is calculated assuming a maximum DPR of $
     removeLoadListenerFn();
     removeErrorListenerFn();
   });
+  destroyRef.onDestroy(() => {
+    removeLoadListenerFn();
+    removeErrorListenerFn();
+  });
   callOnLoadIfImageIsLoaded(img, callback);
 }
 function assertNonEmptyWidthAndHeight(dir) {
@@ -4947,7 +5009,7 @@ function assertEmptyWidthAndHeight(dir) {
     throw new RuntimeError(2952, `${imgDirectiveDetails(dir.ngSrc)} the attributes \`height\` and/or \`width\` are present along with the \`fill\` attribute. Because \`fill\` mode causes an image to fill its containing element, the size attributes have no effect and should be removed.`);
   }
 }
-function assertNonZeroRenderedHeight(dir, img, renderer) {
+function assertNonZeroRenderedHeight(dir, img, renderer, destroyRef) {
   const callback = () => {
     removeLoadListenerFn();
     removeErrorListenerFn();
@@ -4961,6 +5023,10 @@ function assertNonZeroRenderedHeight(dir, img, renderer) {
     removeLoadListenerFn();
     removeErrorListenerFn();
   });
+  destroyRef.onDestroy(() => {
+    removeLoadListenerFn();
+    removeErrorListenerFn();
+  });
   callOnLoadIfImageIsLoaded(img, callback);
 }
 function assertValidLoadingInput(dir) {
@@ -4970,6 +5036,12 @@ function assertValidLoadingInput(dir) {
   const validInputs = ["auto", "eager", "lazy"];
   if (typeof dir.loading === "string" && !validInputs.includes(dir.loading)) {
     throw new RuntimeError(2952, `${imgDirectiveDetails(dir.ngSrc)} the \`loading\` attribute has an invalid value (\`${dir.loading}\`). To fix this, provide a valid value ("lazy", "eager", or "auto").`);
+  }
+}
+function assertValidDecodingInput(dir) {
+  const validInputs = ["sync", "async", "auto"];
+  if (typeof dir.decoding === "string" && !validInputs.includes(dir.decoding)) {
+    throw new RuntimeError(2952, `${imgDirectiveDetails(dir.ngSrc)} the \`decoding\` attribute has an invalid value (\`${dir.decoding}\`). To fix this, provide a valid value ("sync", "async", or "auto").`);
   }
 }
 function assertNotMissingBuiltInLoader(ngSrc, imageLoader) {
@@ -5039,7 +5111,6 @@ function booleanOrUrlAttribute(value) {
 }
 
 export {
-  DOCUMENT,
   getDOM,
   setRootDomAdapter,
   DomAdapter,
@@ -5116,13 +5187,13 @@ export {
   SlicePipe,
   CommonModule,
   parseCookieValue,
+  XhrFactory,
+  PlatformNavigation,
+  registerLocaleData2 as registerLocaleData,
   PLATFORM_BROWSER_ID,
   PLATFORM_SERVER_ID,
   isPlatformBrowser,
   isPlatformServer,
-  XhrFactory,
-  PlatformNavigation,
-  registerLocaleData2 as registerLocaleData,
   VERSION,
   ViewportScroller,
   NullViewportScroller,
@@ -5137,16 +5208,15 @@ export {
 };
 /*! Bundled license information:
 
-@angular/common/fesm2022/dom_tokens-rA0ACyx7.mjs:
-@angular/common/fesm2022/location-Dq4mJT-A.mjs:
-@angular/common/fesm2022/common_module-Dx7dWex5.mjs:
-@angular/common/fesm2022/xhr-BfNfxNDv.mjs:
-@angular/common/fesm2022/platform_navigation-B45Jeakb.mjs:
+@angular/common/fesm2022/location.mjs:
+@angular/common/fesm2022/common_module.mjs:
+@angular/common/fesm2022/xhr.mjs:
+@angular/common/fesm2022/platform_navigation.mjs:
 @angular/common/fesm2022/common.mjs:
   (**
-   * @license Angular v19.2.18
-   * (c) 2010-2025 Google LLC. https://angular.io/
+   * @license Angular v20.3.16
+   * (c) 2010-2025 Google LLC. https://angular.dev/
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-EL2GJI7E.js.map
+//# sourceMappingURL=chunk-ZK6Y4FEQ.js.map

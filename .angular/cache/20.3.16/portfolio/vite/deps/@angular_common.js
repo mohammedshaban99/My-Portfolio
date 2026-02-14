@@ -6,7 +6,6 @@ import {
   CurrencyPipe,
   DATE_PIPE_DEFAULT_OPTIONS,
   DATE_PIPE_DEFAULT_TIMEZONE,
-  DOCUMENT,
   DatePipe,
   DecimalPipe,
   DomAdapter,
@@ -94,10 +93,12 @@ import {
   provideNetlifyLoader,
   registerLocaleData,
   setRootDomAdapter
-} from "./chunk-EL2GJI7E.js";
+} from "./chunk-ZK6Y4FEQ.js";
 import {
+  DOCUMENT,
   IMAGE_CONFIG
-} from "./chunk-R3JEYSTZ.js";
+} from "./chunk-5IJ2EEYK.js";
+import "./chunk-WDMUDEB6.js";
 export {
   APP_BASE_HREF,
   AsyncPipe,

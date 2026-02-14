@@ -1,29 +1,30 @@
 import {
   BrowserModule,
   DomRendererFactory2
-} from "./chunk-BBQZHK5F.js";
-import {
-  DOCUMENT
-} from "./chunk-EL2GJI7E.js";
+} from "./chunk-7YIJPZ5S.js";
+import "./chunk-ZK6Y4FEQ.js";
 import {
   ANIMATION_MODULE_TYPE,
+  DOCUMENT,
   Inject,
   Injectable,
   NgModule,
   NgZone,
   RendererFactory2,
   RuntimeError,
-  __objRest,
-  __spreadValues,
   performanceMarkFeature,
   setClassMetadata,
   ɵɵdefineInjectable,
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵinject
-} from "./chunk-R3JEYSTZ.js";
+} from "./chunk-5IJ2EEYK.js";
+import {
+  __objRest,
+  __spreadValues
+} from "./chunk-WDMUDEB6.js";
 
-// node_modules/@angular/animations/fesm2022/private_export-faY_wCkZ.mjs
+// node_modules/@angular/animations/fesm2022/private_export.mjs
 var AnimationMetadataType;
 (function(AnimationMetadataType2) {
   AnimationMetadataType2[AnimationMetadataType2["State"] = 0] = "State";
@@ -42,18 +43,10 @@ var AnimationMetadataType;
 })(AnimationMetadataType || (AnimationMetadataType = {}));
 var AUTO_STYLE = "*";
 function sequence(steps, options = null) {
-  return {
-    type: AnimationMetadataType.Sequence,
-    steps,
-    options
-  };
+  return { type: AnimationMetadataType.Sequence, steps, options };
 }
 function style(tokens) {
-  return {
-    type: AnimationMetadataType.Style,
-    styles: tokens,
-    offset: null
-  };
+  return { type: AnimationMetadataType.Style, styles: tokens, offset: null };
 }
 var NoopAnimationPlayer = class {
   _onDoneFns = [];
@@ -278,7 +271,7 @@ var AnimationGroupPlayer = class {
 };
 var ɵPRE_STYLE = "!";
 
-// node_modules/@angular/animations/fesm2022/util-D9FfmVnv.mjs
+// node_modules/@angular/animations/fesm2022/util.mjs
 var LINE_START = "\n - ";
 function invalidTimingValue(exp) {
   return new RuntimeError(3e3, ngDevMode && `The provided timing value "${exp}" is invalid.`);
@@ -379,7 +372,207 @@ function transitionFailed(name, errors) {
   return new RuntimeError(3505, ngDevMode && `@${name} has failed due to:
  ${errors.map((err) => err.message).join("\n- ")}`);
 }
-var ANIMATABLE_PROP_SET = /* @__PURE__ */ new Set(["-moz-outline-radius", "-moz-outline-radius-bottomleft", "-moz-outline-radius-bottomright", "-moz-outline-radius-topleft", "-moz-outline-radius-topright", "-ms-grid-columns", "-ms-grid-rows", "-webkit-line-clamp", "-webkit-text-fill-color", "-webkit-text-stroke", "-webkit-text-stroke-color", "accent-color", "all", "backdrop-filter", "background", "background-color", "background-position", "background-size", "block-size", "border", "border-block-end", "border-block-end-color", "border-block-end-width", "border-block-start", "border-block-start-color", "border-block-start-width", "border-bottom", "border-bottom-color", "border-bottom-left-radius", "border-bottom-right-radius", "border-bottom-width", "border-color", "border-end-end-radius", "border-end-start-radius", "border-image-outset", "border-image-slice", "border-image-width", "border-inline-end", "border-inline-end-color", "border-inline-end-width", "border-inline-start", "border-inline-start-color", "border-inline-start-width", "border-left", "border-left-color", "border-left-width", "border-radius", "border-right", "border-right-color", "border-right-width", "border-start-end-radius", "border-start-start-radius", "border-top", "border-top-color", "border-top-left-radius", "border-top-right-radius", "border-top-width", "border-width", "bottom", "box-shadow", "caret-color", "clip", "clip-path", "color", "column-count", "column-gap", "column-rule", "column-rule-color", "column-rule-width", "column-width", "columns", "filter", "flex", "flex-basis", "flex-grow", "flex-shrink", "font", "font-size", "font-size-adjust", "font-stretch", "font-variation-settings", "font-weight", "gap", "grid-column-gap", "grid-gap", "grid-row-gap", "grid-template-columns", "grid-template-rows", "height", "inline-size", "input-security", "inset", "inset-block", "inset-block-end", "inset-block-start", "inset-inline", "inset-inline-end", "inset-inline-start", "left", "letter-spacing", "line-clamp", "line-height", "margin", "margin-block-end", "margin-block-start", "margin-bottom", "margin-inline-end", "margin-inline-start", "margin-left", "margin-right", "margin-top", "mask", "mask-border", "mask-position", "mask-size", "max-block-size", "max-height", "max-inline-size", "max-lines", "max-width", "min-block-size", "min-height", "min-inline-size", "min-width", "object-position", "offset", "offset-anchor", "offset-distance", "offset-path", "offset-position", "offset-rotate", "opacity", "order", "outline", "outline-color", "outline-offset", "outline-width", "padding", "padding-block-end", "padding-block-start", "padding-bottom", "padding-inline-end", "padding-inline-start", "padding-left", "padding-right", "padding-top", "perspective", "perspective-origin", "right", "rotate", "row-gap", "scale", "scroll-margin", "scroll-margin-block", "scroll-margin-block-end", "scroll-margin-block-start", "scroll-margin-bottom", "scroll-margin-inline", "scroll-margin-inline-end", "scroll-margin-inline-start", "scroll-margin-left", "scroll-margin-right", "scroll-margin-top", "scroll-padding", "scroll-padding-block", "scroll-padding-block-end", "scroll-padding-block-start", "scroll-padding-bottom", "scroll-padding-inline", "scroll-padding-inline-end", "scroll-padding-inline-start", "scroll-padding-left", "scroll-padding-right", "scroll-padding-top", "scroll-snap-coordinate", "scroll-snap-destination", "scrollbar-color", "shape-image-threshold", "shape-margin", "shape-outside", "tab-size", "text-decoration", "text-decoration-color", "text-decoration-thickness", "text-emphasis", "text-emphasis-color", "text-indent", "text-shadow", "text-underline-offset", "top", "transform", "transform-origin", "translate", "vertical-align", "visibility", "width", "word-spacing", "z-index", "zoom"]);
+var ANIMATABLE_PROP_SET = /* @__PURE__ */ new Set([
+  "-moz-outline-radius",
+  "-moz-outline-radius-bottomleft",
+  "-moz-outline-radius-bottomright",
+  "-moz-outline-radius-topleft",
+  "-moz-outline-radius-topright",
+  "-ms-grid-columns",
+  "-ms-grid-rows",
+  "-webkit-line-clamp",
+  "-webkit-text-fill-color",
+  "-webkit-text-stroke",
+  "-webkit-text-stroke-color",
+  "accent-color",
+  "all",
+  "backdrop-filter",
+  "background",
+  "background-color",
+  "background-position",
+  "background-size",
+  "block-size",
+  "border",
+  "border-block-end",
+  "border-block-end-color",
+  "border-block-end-width",
+  "border-block-start",
+  "border-block-start-color",
+  "border-block-start-width",
+  "border-bottom",
+  "border-bottom-color",
+  "border-bottom-left-radius",
+  "border-bottom-right-radius",
+  "border-bottom-width",
+  "border-color",
+  "border-end-end-radius",
+  "border-end-start-radius",
+  "border-image-outset",
+  "border-image-slice",
+  "border-image-width",
+  "border-inline-end",
+  "border-inline-end-color",
+  "border-inline-end-width",
+  "border-inline-start",
+  "border-inline-start-color",
+  "border-inline-start-width",
+  "border-left",
+  "border-left-color",
+  "border-left-width",
+  "border-radius",
+  "border-right",
+  "border-right-color",
+  "border-right-width",
+  "border-start-end-radius",
+  "border-start-start-radius",
+  "border-top",
+  "border-top-color",
+  "border-top-left-radius",
+  "border-top-right-radius",
+  "border-top-width",
+  "border-width",
+  "bottom",
+  "box-shadow",
+  "caret-color",
+  "clip",
+  "clip-path",
+  "color",
+  "column-count",
+  "column-gap",
+  "column-rule",
+  "column-rule-color",
+  "column-rule-width",
+  "column-width",
+  "columns",
+  "filter",
+  "flex",
+  "flex-basis",
+  "flex-grow",
+  "flex-shrink",
+  "font",
+  "font-size",
+  "font-size-adjust",
+  "font-stretch",
+  "font-variation-settings",
+  "font-weight",
+  "gap",
+  "grid-column-gap",
+  "grid-gap",
+  "grid-row-gap",
+  "grid-template-columns",
+  "grid-template-rows",
+  "height",
+  "inline-size",
+  "input-security",
+  "inset",
+  "inset-block",
+  "inset-block-end",
+  "inset-block-start",
+  "inset-inline",
+  "inset-inline-end",
+  "inset-inline-start",
+  "left",
+  "letter-spacing",
+  "line-clamp",
+  "line-height",
+  "margin",
+  "margin-block-end",
+  "margin-block-start",
+  "margin-bottom",
+  "margin-inline-end",
+  "margin-inline-start",
+  "margin-left",
+  "margin-right",
+  "margin-top",
+  "mask",
+  "mask-border",
+  "mask-position",
+  "mask-size",
+  "max-block-size",
+  "max-height",
+  "max-inline-size",
+  "max-lines",
+  "max-width",
+  "min-block-size",
+  "min-height",
+  "min-inline-size",
+  "min-width",
+  "object-position",
+  "offset",
+  "offset-anchor",
+  "offset-distance",
+  "offset-path",
+  "offset-position",
+  "offset-rotate",
+  "opacity",
+  "order",
+  "outline",
+  "outline-color",
+  "outline-offset",
+  "outline-width",
+  "padding",
+  "padding-block-end",
+  "padding-block-start",
+  "padding-bottom",
+  "padding-inline-end",
+  "padding-inline-start",
+  "padding-left",
+  "padding-right",
+  "padding-top",
+  "perspective",
+  "perspective-origin",
+  "right",
+  "rotate",
+  "row-gap",
+  "scale",
+  "scroll-margin",
+  "scroll-margin-block",
+  "scroll-margin-block-end",
+  "scroll-margin-block-start",
+  "scroll-margin-bottom",
+  "scroll-margin-inline",
+  "scroll-margin-inline-end",
+  "scroll-margin-inline-start",
+  "scroll-margin-left",
+  "scroll-margin-right",
+  "scroll-margin-top",
+  "scroll-padding",
+  "scroll-padding-block",
+  "scroll-padding-block-end",
+  "scroll-padding-block-start",
+  "scroll-padding-bottom",
+  "scroll-padding-inline",
+  "scroll-padding-inline-end",
+  "scroll-padding-inline-start",
+  "scroll-padding-left",
+  "scroll-padding-right",
+  "scroll-padding-top",
+  "scroll-snap-coordinate",
+  "scroll-snap-destination",
+  "scrollbar-color",
+  "shape-image-threshold",
+  "shape-margin",
+  "shape-outside",
+  "tab-size",
+  "text-decoration",
+  "text-decoration-color",
+  "text-decoration-thickness",
+  "text-emphasis",
+  "text-emphasis-color",
+  "text-indent",
+  "text-shadow",
+  "text-underline-offset",
+  "top",
+  "transform",
+  "transform-origin",
+  "translate",
+  "vertical-align",
+  "visibility",
+  "width",
+  "word-spacing",
+  "z-index",
+  "zoom"
+]);
 function optimizeGroupPlayer(players) {
   switch (players.length) {
     case 0:
@@ -453,15 +646,7 @@ function copyAnimationEvent(e, phaseName, player) {
   return event;
 }
 function makeAnimationEvent(element, triggerName, fromState, toState, phaseName = "", totalTime = 0, disabled) {
-  return {
-    element,
-    triggerName,
-    fromState,
-    toState,
-    phaseName,
-    totalTime,
-    disabled: !!disabled
-  };
+  return { element, triggerName, fromState, toState, phaseName, totalTime, disabled: !!disabled };
 }
 function getOrSetDefaultValue(map, key, defaultValue) {
   let value = map.get(key);
@@ -539,9 +724,11 @@ var NG_TRIGGER_SELECTOR = ".ng-trigger";
 var NG_ANIMATING_CLASSNAME = "ng-animating";
 var NG_ANIMATING_SELECTOR = ".ng-animating";
 function resolveTimingValue(value) {
-  if (typeof value == "number") return value;
+  if (typeof value == "number")
+    return value;
   const matches = value.match(/^(-?[\.\d]+)(m?s)/);
-  if (!matches || matches.length < 2) return 0;
+  if (!matches || matches.length < 2)
+    return 0;
   return _convertTimeValueToMS(parseFloat(matches[1]), matches[2]);
 }
 function _convertTimeValueToMS(value, unit) {
@@ -555,20 +742,16 @@ function _convertTimeValueToMS(value, unit) {
 function resolveTiming(timings, errors, allowNegativeValues) {
   return timings.hasOwnProperty("duration") ? timings : parseTimeExpression(timings, errors, allowNegativeValues);
 }
+var PARSE_TIME_EXPRESSION_REGEX = /^(-?[\.\d]+)(m?s)(?:\s+(-?[\.\d]+)(m?s))?(?:\s+([-a-z]+(?:\(.+?\))?))?$/i;
 function parseTimeExpression(exp, errors, allowNegativeValues) {
-  const regex = /^(-?[\.\d]+)(m?s)(?:\s+(-?[\.\d]+)(m?s))?(?:\s+([-a-z]+(?:\(.+?\))?))?$/i;
   let duration;
   let delay = 0;
   let easing = "";
   if (typeof exp === "string") {
-    const matches = exp.match(regex);
+    const matches = exp.match(PARSE_TIME_EXPRESSION_REGEX);
     if (matches === null) {
       errors.push(invalidTimingValue(exp));
-      return {
-        duration: 0,
-        delay: 0,
-        easing: ""
-      };
+      return { duration: 0, delay: 0, easing: "" };
     }
     duration = _convertTimeValueToMS(parseFloat(matches[1]), matches[2]);
     const delayMatch = matches[3];
@@ -597,11 +780,7 @@ function parseTimeExpression(exp, errors, allowNegativeValues) {
       errors.splice(startIndex, 0, invalidTimingValue(exp));
     }
   }
-  return {
-    duration,
-    delay,
-    easing
-  };
+  return { duration, delay, easing };
 }
 function normalizeKeyframes(keyframes) {
   if (!keyframes.length) {
@@ -629,7 +808,8 @@ function eraseStyles(element, styles) {
 }
 function normalizeAnimationEntry(steps) {
   if (Array.isArray(steps)) {
-    if (steps.length == 1) return steps[0];
+    if (steps.length == 1)
+      return steps[0];
     return sequence(steps);
   }
   return steps;
@@ -3830,8 +4010,7 @@ var WebAnimationsPlayer = class {
   // (since the _onStartFns and _onDoneFns get deleted after they are called)
   _originalOnDoneFns = [];
   _originalOnStartFns = [];
-  // using non-null assertion because it's re(set) by init();
-  domPlayer;
+  domPlayer = null;
   time = 0;
   parentPlayer = null;
   currentSnapshot = /* @__PURE__ */ new Map();
@@ -3852,26 +4031,34 @@ var WebAnimationsPlayer = class {
     }
   }
   init() {
-    this._buildPlayer();
+    if (!this._buildPlayer()) {
+      return;
+    }
     this._preparePlayerBeforeStart();
   }
   _buildPlayer() {
-    if (this._initialized) return;
+    if (this._initialized) return this.domPlayer;
     this._initialized = true;
     const keyframes = this.keyframes;
-    this.domPlayer = this._triggerWebAnimation(this.element, keyframes, this.options);
+    const animation = this._triggerWebAnimation(this.element, keyframes, this.options);
+    if (!animation) {
+      this._onFinish();
+      return null;
+    }
+    this.domPlayer = animation;
     this._finalKeyframe = keyframes.length ? keyframes[keyframes.length - 1] : /* @__PURE__ */ new Map();
     const onFinish = () => this._onFinish();
-    this.domPlayer.addEventListener("finish", onFinish);
+    animation.addEventListener("finish", onFinish);
     this.onDestroy(() => {
-      this.domPlayer.removeEventListener("finish", onFinish);
+      animation.removeEventListener("finish", onFinish);
     });
+    return animation;
   }
   _preparePlayerBeforeStart() {
     if (this._delay) {
       this._resetDomPlayerState();
     } else {
-      this.domPlayer.pause();
+      this.domPlayer?.pause();
     }
   }
   _convertKeyframesToObject(keyframes) {
@@ -3883,7 +4070,12 @@ var WebAnimationsPlayer = class {
   }
   /** @internal */
   _triggerWebAnimation(element, keyframes, options) {
-    return element.animate(this._convertKeyframesToObject(keyframes), options);
+    const keyframesObject = this._convertKeyframesToObject(keyframes);
+    try {
+      return element.animate(keyframesObject, options);
+    } catch {
+      return null;
+    }
   }
   onStart(fn) {
     this._originalOnStartFns.push(fn);
@@ -3897,7 +4089,10 @@ var WebAnimationsPlayer = class {
     this._onDestroyFns.push(fn);
   }
   play() {
-    this._buildPlayer();
+    const player = this._buildPlayer();
+    if (!player) {
+      return;
+    }
     if (!this.hasStarted()) {
       this._onStartFns.forEach((fn) => fn());
       this._onStartFns = [];
@@ -3906,14 +4101,15 @@ var WebAnimationsPlayer = class {
         this._specialStyles.start();
       }
     }
-    this.domPlayer.play();
+    player.play();
   }
   pause() {
     this.init();
-    this.domPlayer.pause();
+    this.domPlayer?.pause();
   }
   finish() {
     this.init();
+    if (!this.domPlayer) return;
     if (this._specialStyles) {
       this._specialStyles.finish();
     }
@@ -3929,9 +4125,7 @@ var WebAnimationsPlayer = class {
     this._onDoneFns = this._originalOnDoneFns;
   }
   _resetDomPlayerState() {
-    if (this.domPlayer) {
-      this.domPlayer.cancel();
-    }
+    this.domPlayer?.cancel();
   }
   restart() {
     this.reset();
@@ -3953,12 +4147,17 @@ var WebAnimationsPlayer = class {
     }
   }
   setPosition(p) {
-    if (this.domPlayer === void 0) {
+    if (!this.domPlayer) {
       this.init();
     }
-    this.domPlayer.currentTime = p * this.time;
+    if (this.domPlayer) {
+      this.domPlayer.currentTime = p * this.time;
+    }
   }
   getPosition() {
+    if (!this.domPlayer) {
+      return this._initialized ? 1 : 0;
+    }
     return +(this.domPlayer.currentTime ?? 0) / this.time;
   }
   get totalTime() {
@@ -4080,7 +4279,13 @@ var BaseAnimationRenderer = class {
     this.delegate.insertBefore(parent, newChild, refChild);
     this.engine.onInsert(this.namespaceId, newChild, parent, isMove);
   }
-  removeChild(parent, oldChild, isHostElement) {
+  // TODO(thePunderWoman): remove the requireSynchronousElementRemoval flag after the
+  // animations package has been fully deleted post v23.
+  removeChild(parent, oldChild, isHostElement, requireSynchronousElementRemoval) {
+    if (requireSynchronousElementRemoval) {
+      this.delegate.removeChild(parent, oldChild, isHostElement, requireSynchronousElementRemoval);
+      return;
+    }
     if (this.parentNode(oldChild)) {
       this.engine.onRemove(this.namespaceId, oldChild, this.delegate);
     }
@@ -4436,13 +4641,13 @@ export {
 };
 /*! Bundled license information:
 
-@angular/animations/fesm2022/private_export-faY_wCkZ.mjs:
-@angular/animations/fesm2022/util-D9FfmVnv.mjs:
+@angular/animations/fesm2022/private_export.mjs:
+@angular/animations/fesm2022/util.mjs:
 @angular/animations/fesm2022/browser.mjs:
 @angular/platform-browser/fesm2022/animations.mjs:
   (**
-   * @license Angular v19.2.18
-   * (c) 2010-2025 Google LLC. https://angular.io/
+   * @license Angular v20.3.16
+   * (c) 2010-2025 Google LLC. https://angular.dev/
    * License: MIT
    *)
 */
