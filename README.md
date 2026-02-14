@@ -88,45 +88,6 @@ The build artifacts will be stored in the `dist/` directory.
 ng deploy --base-href=/My-Portfolio/
 ```
 
-## 📁 Project Structure
-
-```
-portfolio/
-├── src/
-│   ├── app/
-│   │   ├── components/          # UI components
-│   │   ├── services/            # Business logic services
-│   │   ├── models/              # Data models
-│   │   └── shared/              # Shared utilities
-│   ├── assets/                  # Static files (images, icons, etc.)
-│   ├── styles/                  # Global styles
-│   └── environments/            # Environment configurations
-├── angular.json
-├── package.json
-└── README.md
-```
-
-## 🔧 Customization
-
-This project is highly customizable. You can easily modify:
-- Color schemes and themes
-- Layout and design elements
-- Content and sections
-- Animations and transitions
-- Third-party integrations
-
-Update the environment files in `src/environments/` for different configurations as needed.
-
-## 📝 Future Enhancements
-
-- Additional content sections
-- Enhanced animations and interactions
-- Multi-language support
-- Integration with external APIs
-- Progressive Web App (PWA) features
-- Performance optimizations
-- Accessibility improvements
-
 ## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/mohammedshaban99/My-Portfolio/issues).
