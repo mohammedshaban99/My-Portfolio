@@ -1,8 +1,7 @@
 import {
   BrowserModule,
   DomRendererFactory2
-} from "./chunk-7YIJPZ5S.js";
-import "./chunk-ZK6Y4FEQ.js";
+} from "./chunk-YFT224FU.js";
 import {
   ANIMATION_MODULE_TYPE,
   DOCUMENT,
@@ -12,19 +11,20 @@ import {
   NgZone,
   RendererFactory2,
   RuntimeError,
+  inject,
   performanceMarkFeature,
   setClassMetadata,
   ɵɵdefineInjectable,
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵinject
-} from "./chunk-5IJ2EEYK.js";
+} from "./chunk-JQZRKJUG.js";
 import {
   __objRest,
   __spreadValues
 } from "./chunk-WDMUDEB6.js";
 
-// node_modules/@angular/animations/fesm2022/private_export.mjs
+// node_modules/@angular/animations/fesm2022/_private_export-chunk.mjs
 var AnimationMetadataType;
 (function(AnimationMetadataType2) {
   AnimationMetadataType2[AnimationMetadataType2["State"] = 0] = "State";
@@ -43,10 +43,18 @@ var AnimationMetadataType;
 })(AnimationMetadataType || (AnimationMetadataType = {}));
 var AUTO_STYLE = "*";
 function sequence(steps, options = null) {
-  return { type: AnimationMetadataType.Sequence, steps, options };
+  return {
+    type: AnimationMetadataType.Sequence,
+    steps,
+    options
+  };
 }
 function style(tokens) {
-  return { type: AnimationMetadataType.Style, styles: tokens, offset: null };
+  return {
+    type: AnimationMetadataType.Style,
+    styles: tokens,
+    offset: null
+  };
 }
 var NoopAnimationPlayer = class {
   _onDoneFns = [];
@@ -93,7 +101,6 @@ var NoopAnimationPlayer = class {
     }
     this._started = true;
   }
-  /** @internal */
   triggerMicrotask() {
     queueMicrotask(() => this._onFinish());
   }
@@ -131,7 +138,6 @@ var NoopAnimationPlayer = class {
   getPosition() {
     return this.totalTime ? this._position / this.totalTime : 1;
   }
-  /** @internal */
   triggerCallback(phaseName) {
     const methods = phaseName == "start" ? this._onStartFns : this._onDoneFns;
     methods.forEach((fn) => fn());
@@ -262,7 +268,6 @@ var AnimationGroupPlayer = class {
       }
     });
   }
-  /** @internal */
   triggerCallback(phaseName) {
     const methods = phaseName == "start" ? this._onStartFns : this._onDoneFns;
     methods.forEach((fn) => fn());
@@ -271,7 +276,7 @@ var AnimationGroupPlayer = class {
 };
 var ɵPRE_STYLE = "!";
 
-// node_modules/@angular/animations/fesm2022/util.mjs
+// node_modules/@angular/animations/fesm2022/_util-chunk.mjs
 var LINE_START = "\n - ";
 function invalidTimingValue(exp) {
   return new RuntimeError(3e3, ngDevMode && `The provided timing value "${exp}" is invalid.`);
@@ -372,207 +377,7 @@ function transitionFailed(name, errors) {
   return new RuntimeError(3505, ngDevMode && `@${name} has failed due to:
  ${errors.map((err) => err.message).join("\n- ")}`);
 }
-var ANIMATABLE_PROP_SET = /* @__PURE__ */ new Set([
-  "-moz-outline-radius",
-  "-moz-outline-radius-bottomleft",
-  "-moz-outline-radius-bottomright",
-  "-moz-outline-radius-topleft",
-  "-moz-outline-radius-topright",
-  "-ms-grid-columns",
-  "-ms-grid-rows",
-  "-webkit-line-clamp",
-  "-webkit-text-fill-color",
-  "-webkit-text-stroke",
-  "-webkit-text-stroke-color",
-  "accent-color",
-  "all",
-  "backdrop-filter",
-  "background",
-  "background-color",
-  "background-position",
-  "background-size",
-  "block-size",
-  "border",
-  "border-block-end",
-  "border-block-end-color",
-  "border-block-end-width",
-  "border-block-start",
-  "border-block-start-color",
-  "border-block-start-width",
-  "border-bottom",
-  "border-bottom-color",
-  "border-bottom-left-radius",
-  "border-bottom-right-radius",
-  "border-bottom-width",
-  "border-color",
-  "border-end-end-radius",
-  "border-end-start-radius",
-  "border-image-outset",
-  "border-image-slice",
-  "border-image-width",
-  "border-inline-end",
-  "border-inline-end-color",
-  "border-inline-end-width",
-  "border-inline-start",
-  "border-inline-start-color",
-  "border-inline-start-width",
-  "border-left",
-  "border-left-color",
-  "border-left-width",
-  "border-radius",
-  "border-right",
-  "border-right-color",
-  "border-right-width",
-  "border-start-end-radius",
-  "border-start-start-radius",
-  "border-top",
-  "border-top-color",
-  "border-top-left-radius",
-  "border-top-right-radius",
-  "border-top-width",
-  "border-width",
-  "bottom",
-  "box-shadow",
-  "caret-color",
-  "clip",
-  "clip-path",
-  "color",
-  "column-count",
-  "column-gap",
-  "column-rule",
-  "column-rule-color",
-  "column-rule-width",
-  "column-width",
-  "columns",
-  "filter",
-  "flex",
-  "flex-basis",
-  "flex-grow",
-  "flex-shrink",
-  "font",
-  "font-size",
-  "font-size-adjust",
-  "font-stretch",
-  "font-variation-settings",
-  "font-weight",
-  "gap",
-  "grid-column-gap",
-  "grid-gap",
-  "grid-row-gap",
-  "grid-template-columns",
-  "grid-template-rows",
-  "height",
-  "inline-size",
-  "input-security",
-  "inset",
-  "inset-block",
-  "inset-block-end",
-  "inset-block-start",
-  "inset-inline",
-  "inset-inline-end",
-  "inset-inline-start",
-  "left",
-  "letter-spacing",
-  "line-clamp",
-  "line-height",
-  "margin",
-  "margin-block-end",
-  "margin-block-start",
-  "margin-bottom",
-  "margin-inline-end",
-  "margin-inline-start",
-  "margin-left",
-  "margin-right",
-  "margin-top",
-  "mask",
-  "mask-border",
-  "mask-position",
-  "mask-size",
-  "max-block-size",
-  "max-height",
-  "max-inline-size",
-  "max-lines",
-  "max-width",
-  "min-block-size",
-  "min-height",
-  "min-inline-size",
-  "min-width",
-  "object-position",
-  "offset",
-  "offset-anchor",
-  "offset-distance",
-  "offset-path",
-  "offset-position",
-  "offset-rotate",
-  "opacity",
-  "order",
-  "outline",
-  "outline-color",
-  "outline-offset",
-  "outline-width",
-  "padding",
-  "padding-block-end",
-  "padding-block-start",
-  "padding-bottom",
-  "padding-inline-end",
-  "padding-inline-start",
-  "padding-left",
-  "padding-right",
-  "padding-top",
-  "perspective",
-  "perspective-origin",
-  "right",
-  "rotate",
-  "row-gap",
-  "scale",
-  "scroll-margin",
-  "scroll-margin-block",
-  "scroll-margin-block-end",
-  "scroll-margin-block-start",
-  "scroll-margin-bottom",
-  "scroll-margin-inline",
-  "scroll-margin-inline-end",
-  "scroll-margin-inline-start",
-  "scroll-margin-left",
-  "scroll-margin-right",
-  "scroll-margin-top",
-  "scroll-padding",
-  "scroll-padding-block",
-  "scroll-padding-block-end",
-  "scroll-padding-block-start",
-  "scroll-padding-bottom",
-  "scroll-padding-inline",
-  "scroll-padding-inline-end",
-  "scroll-padding-inline-start",
-  "scroll-padding-left",
-  "scroll-padding-right",
-  "scroll-padding-top",
-  "scroll-snap-coordinate",
-  "scroll-snap-destination",
-  "scrollbar-color",
-  "shape-image-threshold",
-  "shape-margin",
-  "shape-outside",
-  "tab-size",
-  "text-decoration",
-  "text-decoration-color",
-  "text-decoration-thickness",
-  "text-emphasis",
-  "text-emphasis-color",
-  "text-indent",
-  "text-shadow",
-  "text-underline-offset",
-  "top",
-  "transform",
-  "transform-origin",
-  "translate",
-  "vertical-align",
-  "visibility",
-  "width",
-  "word-spacing",
-  "z-index",
-  "zoom"
-]);
+var ANIMATABLE_PROP_SET = /* @__PURE__ */ new Set(["-moz-outline-radius", "-moz-outline-radius-bottomleft", "-moz-outline-radius-bottomright", "-moz-outline-radius-topleft", "-moz-outline-radius-topright", "-ms-grid-columns", "-ms-grid-rows", "-webkit-line-clamp", "-webkit-text-fill-color", "-webkit-text-stroke", "-webkit-text-stroke-color", "accent-color", "all", "backdrop-filter", "background", "background-color", "background-position", "background-size", "block-size", "border", "border-block-end", "border-block-end-color", "border-block-end-width", "border-block-start", "border-block-start-color", "border-block-start-width", "border-bottom", "border-bottom-color", "border-bottom-left-radius", "border-bottom-right-radius", "border-bottom-width", "border-color", "border-end-end-radius", "border-end-start-radius", "border-image-outset", "border-image-slice", "border-image-width", "border-inline-end", "border-inline-end-color", "border-inline-end-width", "border-inline-start", "border-inline-start-color", "border-inline-start-width", "border-left", "border-left-color", "border-left-width", "border-radius", "border-right", "border-right-color", "border-right-width", "border-start-end-radius", "border-start-start-radius", "border-top", "border-top-color", "border-top-left-radius", "border-top-right-radius", "border-top-width", "border-width", "bottom", "box-shadow", "caret-color", "clip", "clip-path", "color", "column-count", "column-gap", "column-rule", "column-rule-color", "column-rule-width", "column-width", "columns", "filter", "flex", "flex-basis", "flex-grow", "flex-shrink", "font", "font-size", "font-size-adjust", "font-stretch", "font-variation-settings", "font-weight", "gap", "grid-column-gap", "grid-gap", "grid-row-gap", "grid-template-columns", "grid-template-rows", "height", "inline-size", "input-security", "inset", "inset-block", "inset-block-end", "inset-block-start", "inset-inline", "inset-inline-end", "inset-inline-start", "left", "letter-spacing", "line-clamp", "line-height", "margin", "margin-block-end", "margin-block-start", "margin-bottom", "margin-inline-end", "margin-inline-start", "margin-left", "margin-right", "margin-top", "mask", "mask-border", "mask-position", "mask-size", "max-block-size", "max-height", "max-inline-size", "max-lines", "max-width", "min-block-size", "min-height", "min-inline-size", "min-width", "object-position", "offset", "offset-anchor", "offset-distance", "offset-path", "offset-position", "offset-rotate", "opacity", "order", "outline", "outline-color", "outline-offset", "outline-width", "padding", "padding-block-end", "padding-block-start", "padding-bottom", "padding-inline-end", "padding-inline-start", "padding-left", "padding-right", "padding-top", "perspective", "perspective-origin", "right", "rotate", "row-gap", "scale", "scroll-margin", "scroll-margin-block", "scroll-margin-block-end", "scroll-margin-block-start", "scroll-margin-bottom", "scroll-margin-inline", "scroll-margin-inline-end", "scroll-margin-inline-start", "scroll-margin-left", "scroll-margin-right", "scroll-margin-top", "scroll-padding", "scroll-padding-block", "scroll-padding-block-end", "scroll-padding-block-start", "scroll-padding-bottom", "scroll-padding-inline", "scroll-padding-inline-end", "scroll-padding-inline-start", "scroll-padding-left", "scroll-padding-right", "scroll-padding-top", "scroll-snap-coordinate", "scroll-snap-destination", "scrollbar-color", "shape-image-threshold", "shape-margin", "shape-outside", "tab-size", "text-decoration", "text-decoration-color", "text-decoration-thickness", "text-emphasis", "text-emphasis-color", "text-indent", "text-shadow", "text-underline-offset", "top", "transform", "transform-origin", "translate", "vertical-align", "visibility", "width", "word-spacing", "z-index", "zoom"]);
 function optimizeGroupPlayer(players) {
   switch (players.length) {
     case 0:
@@ -646,7 +451,15 @@ function copyAnimationEvent(e, phaseName, player) {
   return event;
 }
 function makeAnimationEvent(element, triggerName, fromState, toState, phaseName = "", totalTime = 0, disabled) {
-  return { element, triggerName, fromState, toState, phaseName, totalTime, disabled: !!disabled };
+  return {
+    element,
+    triggerName,
+    fromState,
+    toState,
+    phaseName,
+    totalTime,
+    disabled: !!disabled
+  };
 }
 function getOrSetDefaultValue(map, key, defaultValue) {
   let value = map.get(key);
@@ -724,11 +537,9 @@ var NG_TRIGGER_SELECTOR = ".ng-trigger";
 var NG_ANIMATING_CLASSNAME = "ng-animating";
 var NG_ANIMATING_SELECTOR = ".ng-animating";
 function resolveTimingValue(value) {
-  if (typeof value == "number")
-    return value;
+  if (typeof value == "number") return value;
   const matches = value.match(/^(-?[\.\d]+)(m?s)/);
-  if (!matches || matches.length < 2)
-    return 0;
+  if (!matches || matches.length < 2) return 0;
   return _convertTimeValueToMS(parseFloat(matches[1]), matches[2]);
 }
 function _convertTimeValueToMS(value, unit) {
@@ -751,7 +562,11 @@ function parseTimeExpression(exp, errors, allowNegativeValues) {
     const matches = exp.match(PARSE_TIME_EXPRESSION_REGEX);
     if (matches === null) {
       errors.push(invalidTimingValue(exp));
-      return { duration: 0, delay: 0, easing: "" };
+      return {
+        duration: 0,
+        delay: 0,
+        easing: ""
+      };
     }
     duration = _convertTimeValueToMS(parseFloat(matches[1]), matches[2]);
     const delayMatch = matches[3];
@@ -780,7 +595,11 @@ function parseTimeExpression(exp, errors, allowNegativeValues) {
       errors.splice(startIndex, 0, invalidTimingValue(exp));
     }
   }
-  return { duration, delay, easing };
+  return {
+    duration,
+    delay,
+    easing
+  };
 }
 function normalizeKeyframes(keyframes) {
   if (!keyframes.length) {
@@ -808,8 +627,7 @@ function eraseStyles(element, styles) {
 }
 function normalizeAnimationEntry(steps) {
   if (Array.isArray(steps)) {
-    if (steps.length == 1)
-      return steps[0];
+    if (steps.length == 1) return steps[0];
     return sequence(steps);
   }
   return steps;
@@ -916,41 +734,21 @@ function computeStyle(element, prop) {
 
 // node_modules/@angular/animations/fesm2022/browser.mjs
 var NoopAnimationDriver = class _NoopAnimationDriver {
-  /**
-   * @returns Whether `prop` is a valid CSS property
-   */
   validateStyleProperty(prop) {
     return validateStyleProperty(prop);
   }
-  /**
-   *
-   * @returns Whether elm1 contains elm2.
-   */
   containsElement(elm1, elm2) {
     return containsElement(elm1, elm2);
   }
-  /**
-   * @returns Rhe parent of the given element or `null` if the element is the `document`
-   */
   getParentElement(element) {
     return getParentElement(element);
   }
-  /**
-   * @returns The result of the query selector on the element. The array will contain up to 1 item
-   *     if `multi` is  `false`.
-   */
   query(element, selector, multi) {
     return invokeQuery(element, selector, multi);
   }
-  /**
-   * @returns The `defaultValue` or empty string
-   */
   computeStyle(element, prop, defaultValue) {
     return defaultValue || "";
   }
-  /**
-   * @returns An `NoopAnimationPlayer`
-   */
   animate(element, keyframes, duration, delay, easing, previousPlayers = [], scrubberAccessRequested) {
     return new NoopAnimationPlayer(duration, delay);
   }
@@ -968,9 +766,6 @@ var NoopAnimationDriver = class _NoopAnimationDriver {
   }], null, null);
 })();
 var AnimationDriver = class {
-  /**
-   * @deprecated Use the NoopAnimationDriver class.
-   */
   static NOOP = new NoopAnimationDriver();
 };
 var AnimationStyleNormalizer = class {
@@ -2276,13 +2071,7 @@ function checkNonAnimatableInTimelines(timelines, triggerName, driver) {
   if (!driver.validateAnimatableStyleProperty) {
     return;
   }
-  const allowedNonAnimatableProps = /* @__PURE__ */ new Set([
-    // 'easing' is a utility/synthetic prop we use to represent
-    // easing functions, it represents a property of the animation
-    // which is not animatable but different values can be used
-    // in different steps
-    "easing"
-  ]);
+  const allowedNonAnimatableProps = /* @__PURE__ */ new Set(["easing"]);
   const invalidNonAnimatableProps = /* @__PURE__ */ new Set();
   timelines.forEach(({
     keyframes
@@ -2923,10 +2712,8 @@ var TransitionAnimationEngine = class {
   namespacesByHostElement = /* @__PURE__ */ new Map();
   collectedEnterElements = [];
   collectedLeaveElements = [];
-  // this method is designed to be overridden by the code that uses this engine
   onRemovalComplete = (element, context) => {
   };
-  /** @internal */
   _onRemovalComplete(element, context) {
     this.onRemovalComplete(element, context);
   }
@@ -3700,7 +3487,6 @@ var TransitionAnimationPlayer = class {
   getPosition() {
     return this.queued ? 0 : this._player.getPosition();
   }
-  /** @internal */
   triggerCallback(phaseName) {
     const p = this._player;
     if (p.triggerCallback) {
@@ -3837,7 +3623,6 @@ var AnimationEngine = class {
   _transitionEngine;
   _timelineEngine;
   _triggerCache = {};
-  // this method is designed to be overridden by the code that uses this engine
   onRemovalComplete = (element, context) => {
   };
   constructor(doc, _driver, _normalizer) {
@@ -4005,9 +3790,6 @@ var WebAnimationsPlayer = class {
   _started = false;
   _destroyed = false;
   _finalKeyframe;
-  // the following original fns are persistent copies of the _onStartFns and _onDoneFns
-  // and are used to reset the fns to their original values upon reset()
-  // (since the _onStartFns and _onDoneFns get deleted after they are called)
   _originalOnDoneFns = [];
   _originalOnStartFns = [];
   domPlayer = null;
@@ -4068,12 +3850,11 @@ var WebAnimationsPlayer = class {
     });
     return kfs;
   }
-  /** @internal */
   _triggerWebAnimation(element, keyframes, options) {
     const keyframesObject = this._convertKeyframesToObject(keyframes);
     try {
       return element.animate(keyframesObject, options);
-    } catch {
+    } catch (e) {
       return null;
     }
   }
@@ -4175,7 +3956,6 @@ var WebAnimationsPlayer = class {
     }
     this.currentSnapshot = styles;
   }
-  /** @internal */
   triggerCallback(phaseName) {
     const methods = phaseName === "start" ? this._onStartFns : this._onDoneFns;
     methods.forEach((fn) => fn());
@@ -4238,8 +4018,6 @@ var BaseAnimationRenderer = class {
   delegate;
   engine;
   _onDestroy;
-  // We need to explicitly type this property because of an api-extractor bug
-  // See https://github.com/microsoft/rushstack/issues/4390
   ɵtype = 0;
   constructor(namespaceId, delegate, engine, _onDestroy) {
     this.namespaceId = namespaceId;
@@ -4279,8 +4057,6 @@ var BaseAnimationRenderer = class {
     this.delegate.insertBefore(parent, newChild, refChild);
     this.engine.onInsert(this.namespaceId, newChild, parent, isMove);
   }
-  // TODO(thePunderWoman): remove the requireSynchronousElementRemoval flag after the
-  // animations package has been fully deleted post v23.
   removeChild(parent, oldChild, isHostElement, requireSynchronousElementRemoval) {
     if (requireSynchronousElementRemoval) {
       this.delegate.removeChild(parent, oldChild, isHostElement, requireSynchronousElementRemoval);
@@ -4443,7 +4219,6 @@ var AnimationRendererFactory = class {
       this._microtaskId++;
     });
   }
-  /** @internal */
   scheduleListenerCallback(count, fn, data) {
     if (count >= 0 && count < this._microtaskId) {
       this._zone.run(() => fn(data));
@@ -4478,10 +4253,6 @@ var AnimationRendererFactory = class {
   whenRenderingDone() {
     return this.engine.whenRenderingDone();
   }
-  /**
-   * Used during HMR to clear any cached data about a component.
-   * @param componentId ID of the component that is being replaced.
-   */
   componentReplaced(componentId) {
     this.engine.flush();
     this.delegate.componentReplaced?.(componentId);
@@ -4490,9 +4261,6 @@ var AnimationRendererFactory = class {
 
 // node_modules/@angular/platform-browser/fesm2022/animations.mjs
 var InjectableAnimationEngine = class _InjectableAnimationEngine extends AnimationEngine {
-  // The `ApplicationRef` is injected here explicitly to force the dependency ordering.
-  // Since the `ApplicationRef` should be created earlier before the `AnimationEngine`, they
-  // both have `ngOnDestroy` hooks and `flush()` must be called after all views are destroyed.
   constructor(doc, driver, normalizer) {
     super(doc, driver, normalizer);
   }
@@ -4525,8 +4293,8 @@ var InjectableAnimationEngine = class _InjectableAnimationEngine extends Animati
 function instantiateDefaultStyleNormalizer() {
   return new WebAnimationsStyleNormalizer();
 }
-function instantiateRendererFactory(renderer, engine, zone) {
-  return new AnimationRendererFactory(renderer, engine, zone);
+function instantiateRendererFactory() {
+  return new AnimationRendererFactory(inject(DomRendererFactory2), inject(AnimationEngine), inject(NgZone));
 }
 var SHARED_ANIMATION_PROVIDERS = [{
   provide: AnimationStyleNormalizer,
@@ -4536,8 +4304,7 @@ var SHARED_ANIMATION_PROVIDERS = [{
   useClass: InjectableAnimationEngine
 }, {
   provide: RendererFactory2,
-  useFactory: instantiateRendererFactory,
-  deps: [DomRendererFactory2, AnimationEngine, NgZone]
+  useFactory: instantiateRendererFactory
 }];
 var BROWSER_NOOP_ANIMATIONS_PROVIDERS = [{
   provide: AnimationDriver,
@@ -4546,35 +4313,14 @@ var BROWSER_NOOP_ANIMATIONS_PROVIDERS = [{
   provide: ANIMATION_MODULE_TYPE,
   useValue: "NoopAnimations"
 }, ...SHARED_ANIMATION_PROVIDERS];
-var BROWSER_ANIMATIONS_PROVIDERS = [
-  // Note: the `ngServerMode` happen inside factories to give the variable time to initialize.
-  {
-    provide: AnimationDriver,
-    useFactory: () => false ? new NoopAnimationDriver() : new WebAnimationsDriver()
-  },
-  {
-    provide: ANIMATION_MODULE_TYPE,
-    useFactory: () => false ? "NoopAnimations" : "BrowserAnimations"
-  },
-  ...SHARED_ANIMATION_PROVIDERS
-];
+var BROWSER_ANIMATIONS_PROVIDERS = [{
+  provide: AnimationDriver,
+  useFactory: () => false ? new NoopAnimationDriver() : new WebAnimationsDriver()
+}, {
+  provide: ANIMATION_MODULE_TYPE,
+  useFactory: () => false ? "NoopAnimations" : "BrowserAnimations"
+}, ...SHARED_ANIMATION_PROVIDERS];
 var BrowserAnimationsModule = class _BrowserAnimationsModule {
-  /**
-   * Configures the module based on the specified object.
-   *
-   * @param config Object used to configure the behavior of the `BrowserAnimationsModule`.
-   * @see {@link BrowserAnimationsModuleConfig}
-   *
-   * @usageNotes
-   * When registering the `BrowserAnimationsModule`, you can use the `withConfig`
-   * function as follows:
-   * ```ts
-   * @NgModule({
-   *   imports: [BrowserAnimationsModule.withConfig(config)]
-   * })
-   * class MyNgModule {}
-   * ```
-   */
   static withConfig(config) {
     return {
       ngModule: _BrowserAnimationsModule,
@@ -4639,16 +4385,4 @@ export {
   provideNoopAnimations,
   InjectableAnimationEngine as ɵInjectableAnimationEngine
 };
-/*! Bundled license information:
-
-@angular/animations/fesm2022/private_export.mjs:
-@angular/animations/fesm2022/util.mjs:
-@angular/animations/fesm2022/browser.mjs:
-@angular/platform-browser/fesm2022/animations.mjs:
-  (**
-   * @license Angular v20.3.16
-   * (c) 2010-2025 Google LLC. https://angular.dev/
-   * License: MIT
-   *)
-*/
 //# sourceMappingURL=@angular_platform-browser_animations.js.map

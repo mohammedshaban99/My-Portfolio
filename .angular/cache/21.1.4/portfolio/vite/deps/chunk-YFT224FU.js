@@ -1,15 +1,20 @@
 import {
+  APP_ID,
+  ApplicationModule,
   ApplicationRef,
   Attribute,
+  CSP_NONCE,
   ChangeDetectorRef,
   DEFAULT_CURRENCY_CODE,
   DOCUMENT,
   DestroyRef,
   Directive,
   ElementRef,
+  ErrorHandler,
   Host,
   IMAGE_CONFIG,
   IMAGE_CONFIG_DEFAULTS,
+  INJECTOR_SCOPE,
   INTERNAL_APPLICATION_ERROR_HANDLER,
   Inject,
   Injectable,
@@ -24,27 +29,39 @@ import {
   NgModuleRef$1,
   NgZone,
   Optional,
+  PLATFORM_ID,
+  PLATFORM_INITIALIZER,
   Pipe,
   Renderer2,
+  RendererFactory2,
   RendererStyleFlags2,
   RuntimeError,
   Subject,
+  TESTABILITY,
+  TESTABILITY_GETTER,
   TemplateRef,
+  Testability,
+  TracingService,
   Version,
   ViewContainerRef,
+  ViewEncapsulation,
+  _global,
+  allLeavingAnimations,
   booleanAttribute,
   createNgModule,
+  createPlatformFactory,
   findLocaleData,
   formatRuntimeError,
-  getLocaleCurrencyCode,
   getLocalePluralCase,
   inject,
+  internalCreateApplication,
   isPromise,
   isSubscribable,
   numberAttribute,
   performanceMarkFeature,
-  registerLocaleData,
+  platformCore,
   setClassMetadata,
+  setDocument,
   stringify,
   untracked,
   unwrapSafeValue,
@@ -58,14 +75,14 @@ import {
   ɵɵinject,
   ɵɵinjectAttribute,
   ɵɵstyleProp
-} from "./chunk-5IJ2EEYK.js";
+} from "./chunk-JQZRKJUG.js";
 import {
   __async,
   __spreadProps,
   __spreadValues
 } from "./chunk-WDMUDEB6.js";
 
-// node_modules/@angular/common/fesm2022/location.mjs
+// node_modules/@angular/common/fesm2022/_platform_location-chunk.mjs
 var _DOM = null;
 function getDOM() {
   return _DOM;
@@ -97,7 +114,7 @@ var PlatformLocation = class _PlatformLocation {
     }]
   }], null, null);
 })();
-var LOCATION_INITIALIZED = new InjectionToken(ngDevMode ? "Location Initialized" : "");
+var LOCATION_INITIALIZED = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "Location Initialized" : "");
 var BrowserPlatformLocation = class _BrowserPlatformLocation extends PlatformLocation {
   _location;
   _history;
@@ -180,6 +197,8 @@ var BrowserPlatformLocation = class _BrowserPlatformLocation extends PlatformLoc
     }]
   }], () => [], null);
 })();
+
+// node_modules/@angular/common/fesm2022/_location-chunk.mjs
 function joinWithSlash(start, end) {
   if (!start) return end;
   if (!end) return start;
@@ -217,7 +236,7 @@ var LocationStrategy = class _LocationStrategy {
     }]
   }], null, null);
 })();
-var APP_BASE_HREF = new InjectionToken(ngDevMode ? "appBaseHref" : "");
+var APP_BASE_HREF = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "appBaseHref" : "");
 var PathLocationStrategy = class _PathLocationStrategy extends LocationStrategy {
   _platformLocation;
   _baseHref;
@@ -227,7 +246,6 @@ var PathLocationStrategy = class _PathLocationStrategy extends LocationStrategy 
     this._platformLocation = _platformLocation;
     this._baseHref = href ?? this._platformLocation.getBaseHrefFromDOM() ?? inject(DOCUMENT).location?.origin ?? "";
   }
-  /** @docs-private */
   ngOnDestroy() {
     while (this._removeListenerFns.length) {
       this._removeListenerFns.pop()();
@@ -295,15 +313,10 @@ var PathLocationStrategy = class _PathLocationStrategy extends LocationStrategy 
   }], null);
 })();
 var Location = class _Location {
-  /** @internal */
   _subject = new Subject();
-  /** @internal */
   _basePath;
-  /** @internal */
   _locationStrategy;
-  /** @internal */
   _urlChangeListeners = [];
-  /** @internal */
   _urlChangeSubscription = null;
   constructor(locationStrategy) {
     this._locationStrategy = locationStrategy;
@@ -318,128 +331,45 @@ var Location = class _Location {
       });
     });
   }
-  /** @docs-private */
   ngOnDestroy() {
     this._urlChangeSubscription?.unsubscribe();
     this._urlChangeListeners = [];
   }
-  /**
-   * Normalizes the URL path for this location.
-   *
-   * @param includeHash True to include an anchor fragment in the path.
-   *
-   * @returns The normalized URL path.
-   */
-  // TODO: vsavkin. Remove the boolean flag and always include hash once the deprecated router is
-  // removed.
   path(includeHash = false) {
     return this.normalize(this._locationStrategy.path(includeHash));
   }
-  /**
-   * Reports the current state of the location history.
-   * @returns The current value of the `history.state` object.
-   */
   getState() {
     return this._locationStrategy.getState();
   }
-  /**
-   * Normalizes the given path and compares to the current normalized path.
-   *
-   * @param path The given URL path.
-   * @param query Query parameters.
-   *
-   * @returns True if the given URL path is equal to the current normalized path, false
-   * otherwise.
-   */
   isCurrentPathEqualTo(path, query = "") {
     return this.path() == this.normalize(path + normalizeQueryParams(query));
   }
-  /**
-   * Normalizes a URL path by stripping any trailing slashes.
-   *
-   * @param url String representing a URL.
-   *
-   * @returns The normalized URL string.
-   */
   normalize(url) {
     return _Location.stripTrailingSlash(_stripBasePath(this._basePath, _stripIndexHtml(url)));
   }
-  /**
-   * Normalizes an external URL path.
-   * If the given URL doesn't begin with a leading slash (`'/'`), adds one
-   * before normalizing. Adds a hash if `HashLocationStrategy` is
-   * in use, or the `APP_BASE_HREF` if the `PathLocationStrategy` is in use.
-   *
-   * @param url String representing a URL.
-   *
-   * @returns  A normalized platform-specific URL.
-   */
   prepareExternalUrl(url) {
     if (url && url[0] !== "/") {
       url = "/" + url;
     }
     return this._locationStrategy.prepareExternalUrl(url);
   }
-  // TODO: rename this method to pushState
-  /**
-   * Changes the browser's URL to a normalized version of a given URL, and pushes a
-   * new item onto the platform's history.
-   *
-   * @param path  URL path to normalize.
-   * @param query Query parameters.
-   * @param state Location history state.
-   *
-   */
   go(path, query = "", state = null) {
     this._locationStrategy.pushState(state, "", path, query);
     this._notifyUrlChangeListeners(this.prepareExternalUrl(path + normalizeQueryParams(query)), state);
   }
-  /**
-   * Changes the browser's URL to a normalized version of the given URL, and replaces
-   * the top item on the platform's history stack.
-   *
-   * @param path  URL path to normalize.
-   * @param query Query parameters.
-   * @param state Location history state.
-   */
   replaceState(path, query = "", state = null) {
     this._locationStrategy.replaceState(state, "", path, query);
     this._notifyUrlChangeListeners(this.prepareExternalUrl(path + normalizeQueryParams(query)), state);
   }
-  /**
-   * Navigates forward in the platform's history.
-   */
   forward() {
     this._locationStrategy.forward();
   }
-  /**
-   * Navigates back in the platform's history.
-   */
   back() {
     this._locationStrategy.back();
   }
-  /**
-   * Navigate to a specific page from session history, identified by its relative position to the
-   * current page.
-   *
-   * @param relativePosition  Position of the target page in the history relative to the current
-   *     page.
-   * A negative value moves backwards, a positive value moves forwards, e.g. `location.historyGo(2)`
-   * moves forward two pages and `location.historyGo(-2)` moves back two pages. When we try to go
-   * beyond what's stored in the history session, we stay in the current page. Same behaviour occurs
-   * when `relativePosition` equals 0.
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/History_API#Moving_to_a_specific_point_in_history
-   */
   historyGo(relativePosition = 0) {
     this._locationStrategy.historyGo?.(relativePosition);
   }
-  /**
-   * Registers a URL change listener. Use to catch updates performed by the Angular
-   * framework that are not detectible through "popstate" or "hashchange" events.
-   *
-   * @param fn The change handler function, which take a URL and a location history state.
-   * @returns A function that, when executed, unregisters a URL change listener.
-   */
   onUrlChange(fn) {
     this._urlChangeListeners.push(fn);
     this._urlChangeSubscription ??= this.subscribe((v) => {
@@ -454,23 +384,9 @@ var Location = class _Location {
       }
     };
   }
-  /** @internal */
   _notifyUrlChangeListeners(url = "", state) {
     this._urlChangeListeners.forEach((fn) => fn(url, state));
   }
-  /**
-   * Subscribes to the platform's `popState` events.
-   *
-   * Note: `Location.go()` does not trigger the `popState` event in the browser. Use
-   * `Location.onUrlChange()` to subscribe to URL changes instead.
-   *
-   * @param value Event that is triggered when the state history changes.
-   * @param exception The exception to throw.
-   *
-   * @see [onpopstate](https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onpopstate)
-   *
-   * @returns Subscribed events.
-   */
   subscribe(onNext, onThrow, onReturn) {
     return this._subject.subscribe({
       next: onNext,
@@ -478,33 +394,8 @@ var Location = class _Location {
       complete: onReturn ?? void 0
     });
   }
-  /**
-   * Normalizes URL parameters by prepending with `?` if needed.
-   *
-   * @param  params String of URL parameters.
-   *
-   * @returns The normalized URL parameters string.
-   */
   static normalizeQueryParams = normalizeQueryParams;
-  /**
-   * Joins two parts of a URL with a slash if needed.
-   *
-   * @param start  URL string
-   * @param end    URL string
-   *
-   *
-   * @returns The joined URL string.
-   */
   static joinWithSlash = joinWithSlash;
-  /**
-   * Removes a trailing slash from a URL string if needed.
-   * Looks for the first occurrence of either `#`, `?`, or the end of the
-   * line as `/` characters and removes the trailing slash if one exists.
-   *
-   * @param url URL string.
-   *
-   * @returns The URL string, modified if needed.
-   */
   static stripTrailingSlash = stripTrailingSlash;
   static ɵfac = function Location_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _Location)(ɵɵinject(LocationStrategy));
@@ -520,7 +411,6 @@ var Location = class _Location {
     type: Injectable,
     args: [{
       providedIn: "root",
-      // See #23917
       useFactory: createLocation
     }]
   }], () => [{
@@ -552,7 +442,7 @@ function _stripOrigin(baseHref) {
   return baseHref;
 }
 
-// node_modules/@angular/common/fesm2022/common_module.mjs
+// node_modules/@angular/common/fesm2022/_common_module-chunk.mjs
 var HashLocationStrategy = class _HashLocationStrategy extends LocationStrategy {
   _platformLocation;
   _baseHref = "";
@@ -564,7 +454,6 @@ var HashLocationStrategy = class _HashLocationStrategy extends LocationStrategy 
       this._baseHref = _baseHref;
     }
   }
-  /** @docs-private */
   ngOnDestroy() {
     while (this._removeListenerFns.length) {
       this._removeListenerFns.pop()();
@@ -689,6 +578,7 @@ var CURRENCIES_EN = {
   "JMD": [void 0, "$"],
   "JOD": [void 0, void 0, 3],
   "JPY": ["¥", void 0, 0],
+  "KGS": [void 0, "⃀"],
   "KHR": [void 0, "៛"],
   "KMF": [void 0, "CF", 0],
   "KPW": [void 0, "₩", 0],
@@ -760,6 +650,7 @@ var CURRENCIES_EN = {
   "VUV": [void 0, void 0, 0],
   "XAF": ["FCFA", void 0, 0],
   "XCD": ["EC$", "$"],
+  "XCG": ["Cg."],
   "XOF": ["F CFA", void 0, 0],
   "XPF": ["CFPF", void 0, 0],
   "XXX": ["¤"],
@@ -805,77 +696,19 @@ var FormatWidth;
   FormatWidth2[FormatWidth2["Full"] = 3] = "Full";
 })(FormatWidth || (FormatWidth = {}));
 var NumberSymbol = {
-  /**
-   * Decimal separator.
-   * For `en-US`, the dot character.
-   * Example: 2,345`.`67
-   */
   Decimal: 0,
-  /**
-   * Grouping separator, typically for thousands.
-   * For `en-US`, the comma character.
-   * Example: 2`,`345.67
-   */
   Group: 1,
-  /**
-   * List-item separator.
-   * Example: "one, two, and three"
-   */
   List: 2,
-  /**
-   * Sign for percentage (out of 100).
-   * Example: 23.4%
-   */
   PercentSign: 3,
-  /**
-   * Sign for positive numbers.
-   * Example: +23
-   */
   PlusSign: 4,
-  /**
-   * Sign for negative numbers.
-   * Example: -23
-   */
   MinusSign: 5,
-  /**
-   * Computer notation for exponential value (n times a power of 10).
-   * Example: 1.2E3
-   */
   Exponential: 6,
-  /**
-   * Human-readable format of exponential.
-   * Example: 1.2x103
-   */
   SuperscriptingExponent: 7,
-  /**
-   * Sign for permille (out of 1000).
-   * Example: 23.4‰
-   */
   PerMille: 8,
-  /**
-   * Infinity, can be used with plus and minus.
-   * Example: ∞, +∞, -∞
-   */
   Infinity: 9,
-  /**
-   * Not a number.
-   * Example: NaN
-   */
   NaN: 10,
-  /**
-   * Symbol used between time units.
-   * Example: 10:52
-   */
   TimeSeparator: 11,
-  /**
-   * Decimal separator for currency values (fallback to `Decimal`).
-   * Example: $2,345.67
-   */
   CurrencyDecimal: 12,
-  /**
-   * Group separator for currency values (fallback to `Group`).
-   * Example: $2,345.67
-   */
   CurrencyGroup: 13
 };
 var WeekDay;
@@ -914,14 +747,6 @@ function getLocaleEraNames(locale, width) {
   const erasData = data[LocaleDataIndex.Eras];
   return getLastDefinedValue(erasData, width);
 }
-function getLocaleFirstDayOfWeek(locale) {
-  const data = findLocaleData(locale);
-  return data[LocaleDataIndex.FirstDayOfWeek];
-}
-function getLocaleWeekEndRange(locale) {
-  const data = findLocaleData(locale);
-  return data[LocaleDataIndex.WeekendRange];
-}
 function getLocaleDateFormat(locale, width) {
   const data = findLocaleData(locale);
   return getLastDefinedValue(data[LocaleDataIndex.DateFormat], width);
@@ -951,17 +776,6 @@ function getLocaleNumberFormat(locale, type) {
   const data = findLocaleData(locale);
   return data[LocaleDataIndex.NumberFormats][type];
 }
-function getLocaleCurrencySymbol(locale) {
-  const data = findLocaleData(locale);
-  return data[LocaleDataIndex.CurrencySymbol] || null;
-}
-function getLocaleCurrencyName(locale) {
-  const data = findLocaleData(locale);
-  return data[LocaleDataIndex.CurrencyName] || null;
-}
-function getLocaleCurrencyCode2(locale) {
-  return getLocaleCurrencyCode(locale);
-}
 function getLocaleCurrencies(locale) {
   const data = findLocaleData(locale);
   return data[LocaleDataIndex.Currencies];
@@ -975,10 +789,7 @@ function checkFullData(data) {
 function getLocaleExtraDayPeriodRules(locale) {
   const data = findLocaleData(locale);
   checkFullData(data);
-  const rules = data[LocaleDataIndex.ExtraData][
-    2
-    /* ɵExtraLocaleDataIndex.ExtraDayPeriodsRules */
-  ] || [];
+  const rules = data[LocaleDataIndex.ExtraData][2] || [];
   return rules.map((rule) => {
     if (typeof rule === "string") {
       return extractTime(rule);
@@ -989,19 +800,9 @@ function getLocaleExtraDayPeriodRules(locale) {
 function getLocaleExtraDayPeriods(locale, formStyle, width) {
   const data = findLocaleData(locale);
   checkFullData(data);
-  const dayPeriodsData = [data[LocaleDataIndex.ExtraData][
-    0
-    /* ɵExtraLocaleDataIndex.ExtraDayPeriodFormats */
-  ], data[LocaleDataIndex.ExtraData][
-    1
-    /* ɵExtraLocaleDataIndex.ExtraDayPeriodStandalone */
-  ]];
+  const dayPeriodsData = [data[LocaleDataIndex.ExtraData][0], data[LocaleDataIndex.ExtraData][1]];
   const dayPeriods = getLastDefinedValue(dayPeriodsData, formStyle) || [];
   return getLastDefinedValue(dayPeriods, width) || [];
-}
-function getLocaleDirection(locale) {
-  const data = findLocaleData(locale);
-  return data[LocaleDataIndex.Directionality];
 }
 function getLastDefinedValue(data, index) {
   for (let i = index; i > -1; i--) {
@@ -1020,27 +821,18 @@ function extractTime(time) {
 }
 function getCurrencySymbol(code, format, locale = "en") {
   const currency = getLocaleCurrencies(locale)[code] || CURRENCIES_EN[code] || [];
-  const symbolNarrow = currency[
-    1
-    /* ɵCurrencyIndex.SymbolNarrow */
-  ];
+  const symbolNarrow = currency[1];
   if (format === "narrow" && typeof symbolNarrow === "string") {
     return symbolNarrow;
   }
-  return currency[
-    0
-    /* ɵCurrencyIndex.Symbol */
-  ] || code;
+  return currency[0] || code;
 }
 var DEFAULT_NB_OF_CURRENCY_DIGITS = 2;
 function getNumberOfCurrencyDigits(code) {
   let digits;
   const currency = CURRENCIES_EN[code];
   if (currency) {
-    digits = currency[
-      2
-      /* ɵCurrencyIndex.NbOfDigits */
-    ];
+    digits = currency[2];
   }
   return typeof digits === "number" ? digits : DEFAULT_NB_OF_CURRENCY_DIGITS;
 }
@@ -1338,7 +1130,6 @@ function getDateFormatter(format) {
   }
   let formatter;
   switch (format) {
-    // Era name (AD/BC)
     case "G":
     case "GG":
     case "GGG":
@@ -1350,41 +1141,30 @@ function getDateFormatter(format) {
     case "GGGGG":
       formatter = dateStrGetter(3, TranslationWidth.Narrow);
       break;
-    // 1 digit representation of the year, e.g. (AD 1 => 1, AD 199 => 199)
     case "y":
       formatter = dateGetter(0, 1, 0, false, true);
       break;
-    // 2 digit representation of the year, padded (00-99). (e.g. AD 2001 => 01, AD 2010 => 10)
     case "yy":
       formatter = dateGetter(0, 2, 0, true, true);
       break;
-    // 3 digit representation of the year, padded (000-999). (e.g. AD 2001 => 01, AD 2010 => 10)
     case "yyy":
       formatter = dateGetter(0, 3, 0, false, true);
       break;
-    // 4 digit representation of the year (e.g. AD 1 => 0001, AD 2010 => 2010)
     case "yyyy":
       formatter = dateGetter(0, 4, 0, false, true);
       break;
-    // 1 digit representation of the week-numbering year, e.g. (AD 1 => 1, AD 199 => 199)
     case "Y":
       formatter = weekNumberingYearGetter(1);
       break;
-    // 2 digit representation of the week-numbering year, padded (00-99). (e.g. AD 2001 => 01, AD
-    // 2010 => 10)
     case "YY":
       formatter = weekNumberingYearGetter(2, true);
       break;
-    // 3 digit representation of the week-numbering year, padded (000-999). (e.g. AD 1 => 001, AD
-    // 2010 => 2010)
     case "YYY":
       formatter = weekNumberingYearGetter(3);
       break;
-    // 4 digit representation of the week-numbering year (e.g. AD 1 => 0001, AD 2010 => 2010)
     case "YYYY":
       formatter = weekNumberingYearGetter(4);
       break;
-    // Month of the year (1-12), numeric
     case "M":
     case "L":
       formatter = dateGetter(1, 1, 1);
@@ -1393,7 +1173,6 @@ function getDateFormatter(format) {
     case "LL":
       formatter = dateGetter(1, 2, 1);
       break;
-    // Month of the year (January, ...), string, format
     case "MMM":
       formatter = dateStrGetter(2, TranslationWidth.Abbreviated);
       break;
@@ -1403,7 +1182,6 @@ function getDateFormatter(format) {
     case "MMMMM":
       formatter = dateStrGetter(2, TranslationWidth.Narrow);
       break;
-    // Month of the year (January, ...), string, standalone
     case "LLL":
       formatter = dateStrGetter(2, TranslationWidth.Abbreviated, FormStyle.Standalone);
       break;
@@ -1413,25 +1191,21 @@ function getDateFormatter(format) {
     case "LLLLL":
       formatter = dateStrGetter(2, TranslationWidth.Narrow, FormStyle.Standalone);
       break;
-    // Week of the year (1, ... 52)
     case "w":
       formatter = weekGetter(1);
       break;
     case "ww":
       formatter = weekGetter(2);
       break;
-    // Week of the month (1, ...)
     case "W":
       formatter = weekGetter(1, true);
       break;
-    // Day of the month (1-31)
     case "d":
       formatter = dateGetter(2, 1);
       break;
     case "dd":
       formatter = dateGetter(2, 2);
       break;
-    // Day of the Week StandAlone (1, 1, Mon, Monday, M, Mo)
     case "c":
     case "cc":
       formatter = dateGetter(7, 1);
@@ -1448,7 +1222,6 @@ function getDateFormatter(format) {
     case "cccccc":
       formatter = dateStrGetter(1, TranslationWidth.Short, FormStyle.Standalone);
       break;
-    // Day of the Week
     case "E":
     case "EE":
     case "EEE":
@@ -1463,7 +1236,6 @@ function getDateFormatter(format) {
     case "EEEEEE":
       formatter = dateStrGetter(1, TranslationWidth.Short);
       break;
-    // Generic period of the day (am-pm)
     case "a":
     case "aa":
     case "aaa":
@@ -1475,7 +1247,6 @@ function getDateFormatter(format) {
     case "aaaaa":
       formatter = dateStrGetter(0, TranslationWidth.Narrow);
       break;
-    // Extended period of the day (midnight, at night, ...), standalone
     case "b":
     case "bb":
     case "bbb":
@@ -1487,7 +1258,6 @@ function getDateFormatter(format) {
     case "bbbbb":
       formatter = dateStrGetter(0, TranslationWidth.Narrow, FormStyle.Standalone, true);
       break;
-    // Extended period of the day (midnight, night, ...), standalone
     case "B":
     case "BB":
     case "BBB":
@@ -1499,36 +1269,30 @@ function getDateFormatter(format) {
     case "BBBBB":
       formatter = dateStrGetter(0, TranslationWidth.Narrow, FormStyle.Format, true);
       break;
-    // Hour in AM/PM, (1-12)
     case "h":
       formatter = dateGetter(3, 1, -12);
       break;
     case "hh":
       formatter = dateGetter(3, 2, -12);
       break;
-    // Hour of the day (0-23)
     case "H":
       formatter = dateGetter(3, 1);
       break;
-    // Hour in day, padded (00-23)
     case "HH":
       formatter = dateGetter(3, 2);
       break;
-    // Minute of the hour (0-59)
     case "m":
       formatter = dateGetter(4, 1);
       break;
     case "mm":
       formatter = dateGetter(4, 2);
       break;
-    // Second of the minute (0-59)
     case "s":
       formatter = dateGetter(5, 1);
       break;
     case "ss":
       formatter = dateGetter(5, 2);
       break;
-    // Fractional second
     case "S":
       formatter = dateGetter(6, 1);
       break;
@@ -1538,44 +1302,26 @@ function getDateFormatter(format) {
     case "SSS":
       formatter = dateGetter(6, 3);
       break;
-    // Timezone ISO8601 short format (-0430)
     case "Z":
     case "ZZ":
     case "ZZZ":
-      formatter = timeZoneGetter(
-        0
-        /* ZoneWidth.Short */
-      );
+      formatter = timeZoneGetter(0);
       break;
-    // Timezone ISO8601 extended format (-04:30)
     case "ZZZZZ":
-      formatter = timeZoneGetter(
-        3
-        /* ZoneWidth.Extended */
-      );
+      formatter = timeZoneGetter(3);
       break;
-    // Timezone GMT short format (GMT+4)
     case "O":
     case "OO":
     case "OOO":
-    // Should be location, but fallback to format O instead because we don't have the data yet
     case "z":
     case "zz":
     case "zzz":
-      formatter = timeZoneGetter(
-        1
-        /* ZoneWidth.ShortGMT */
-      );
+      formatter = timeZoneGetter(1);
       break;
-    // Timezone GMT long format (GMT+0430)
     case "OOOO":
     case "ZZZZ":
-    // Should be location, but fallback to format O instead because we don't have the data yet
     case "zzzz":
-      formatter = timeZoneGetter(
-        2
-        /* ZoneWidth.Long */
-      );
+      formatter = timeZoneGetter(2);
       break;
     default:
       return null;
@@ -1914,15 +1660,7 @@ var NgLocalization = class _NgLocalization {
   };
   static ɵprov = ɵɵdefineInjectable({
     token: _NgLocalization,
-    factory: function NgLocalization_Factory(__ngFactoryType__) {
-      let __ngConditionalFactory__ = null;
-      if (__ngFactoryType__) {
-        __ngConditionalFactory__ = new __ngFactoryType__();
-      } else {
-        __ngConditionalFactory__ = ((locale) => new NgLocaleLocalization(locale))(ɵɵinject(LOCALE_ID));
-      }
-      return __ngConditionalFactory__;
-    },
+    factory: () => (() => new NgLocaleLocalization(inject(LOCALE_ID)))(),
     providedIn: "root"
   });
 };
@@ -1931,8 +1669,7 @@ var NgLocalization = class _NgLocalization {
     type: Injectable,
     args: [{
       providedIn: "root",
-      useFactory: (locale) => new NgLocaleLocalization(locale),
-      deps: [LOCALE_ID]
+      useFactory: () => new NgLocaleLocalization(inject(LOCALE_ID))
     }]
   }], null, null);
 })();
@@ -2010,28 +1747,6 @@ var NgClass = class _NgClass {
   set ngClass(value) {
     this.rawClass = typeof value === "string" ? value.trim().split(WS_REGEXP) : value;
   }
-  /*
-  The NgClass directive uses the custom change detection algorithm for its inputs. The custom
-  algorithm is necessary since inputs are represented as complex object or arrays that need to be
-  deeply-compared.
-     This algorithm is perf-sensitive since NgClass is used very frequently and its poor performance
-  might negatively impact runtime performance of the entire change detection cycle. The design of
-  this algorithm is making sure that:
-  - there is no unnecessary DOM manipulation (CSS classes are added / removed from the DOM only when
-  needed), even if references to bound objects change;
-  - there is no memory allocation if nothing changes (even relatively modest memory allocation
-  during the change detection cycle can result in GC pauses for some of the CD cycles).
-     The algorithm works by iterating over the set of bound classes, staring with [class] binding and
-  then going over [ngClass] binding. For each CSS class name:
-  - check if it was seen before (this information is tracked in the state map) and if its value
-  changed;
-  - mark it as "touched" - names that are not marked are not present in the latest set of binding
-  and we can remove such class name from the internal data structures;
-     After iteration over all the CSS class names we've got data structure with all the information
-  necessary to synchronize changes to the DOM - it is enough to iterate over the state map, flush
-  changes to the DOM and reset internal data structures so those are ready for the next change
-  detection cycle.
-   */
   ngDoCheck() {
     for (const klass of this.initialClasses) {
       this._updateState(klass, true);
@@ -2132,31 +1847,15 @@ var NgClass = class _NgClass {
 })();
 var NgComponentOutlet = class _NgComponentOutlet {
   _viewContainerRef;
-  // TODO(crisbeto): this should be `Type<T>`, but doing so broke a few
-  // targets in a TGP so we need to do it in a major version.
-  /** Component that should be rendered in the outlet. */
   ngComponentOutlet = null;
   ngComponentOutletInputs;
   ngComponentOutletInjector;
   ngComponentOutletEnvironmentInjector;
   ngComponentOutletContent;
   ngComponentOutletNgModule;
-  /**
-   * @deprecated This input is deprecated, use `ngComponentOutletNgModule` instead.
-   */
-  ngComponentOutletNgModuleFactory;
   _componentRef;
   _moduleRef;
-  /**
-   * A helper data structure that allows us to track inputs that were part of the
-   * ngComponentOutletInputs expression. Tracking inputs is necessary for proper removal of ones
-   * that are no longer referenced.
-   */
   _inputsUsed = /* @__PURE__ */ new Map();
-  /**
-   * Gets the instance of the currently-rendered component.
-   * Will be null if no component has been rendered.
-   */
   get componentInstance() {
     return this._componentRef?.instance ?? null;
   }
@@ -2164,12 +1863,11 @@ var NgComponentOutlet = class _NgComponentOutlet {
     this._viewContainerRef = _viewContainerRef;
   }
   _needToReCreateNgModuleInstance(changes) {
-    return changes["ngComponentOutletNgModule"] !== void 0 || changes["ngComponentOutletNgModuleFactory"] !== void 0;
+    return changes["ngComponentOutletNgModule"] !== void 0;
   }
   _needToReCreateComponentInstance(changes) {
     return changes["ngComponentOutlet"] !== void 0 || changes["ngComponentOutletContent"] !== void 0 || changes["ngComponentOutletInjector"] !== void 0 || changes["ngComponentOutletEnvironmentInjector"] !== void 0 || this._needToReCreateNgModuleInstance(changes);
   }
-  /** @docs-private */
   ngOnChanges(changes) {
     if (this._needToReCreateComponentInstance(changes)) {
       this._viewContainerRef.clear();
@@ -2181,8 +1879,6 @@ var NgComponentOutlet = class _NgComponentOutlet {
           this._moduleRef?.destroy();
           if (this.ngComponentOutletNgModule) {
             this._moduleRef = createNgModule(this.ngComponentOutletNgModule, getParentInjector(injector));
-          } else if (this.ngComponentOutletNgModuleFactory) {
-            this._moduleRef = this.ngComponentOutletNgModuleFactory.create(getParentInjector(injector));
           } else {
             this._moduleRef = void 0;
           }
@@ -2196,7 +1892,6 @@ var NgComponentOutlet = class _NgComponentOutlet {
       }
     }
   }
-  /** @docs-private */
   ngDoCheck() {
     if (this._componentRef) {
       if (this.ngComponentOutletInputs) {
@@ -2207,7 +1902,6 @@ var NgComponentOutlet = class _NgComponentOutlet {
       this._applyInputStateDiff(this._componentRef);
     }
   }
-  /** @docs-private */
   ngOnDestroy() {
     this._moduleRef?.destroy();
   }
@@ -2234,8 +1928,7 @@ var NgComponentOutlet = class _NgComponentOutlet {
       ngComponentOutletInjector: "ngComponentOutletInjector",
       ngComponentOutletEnvironmentInjector: "ngComponentOutletEnvironmentInjector",
       ngComponentOutletContent: "ngComponentOutletContent",
-      ngComponentOutletNgModule: "ngComponentOutletNgModule",
-      ngComponentOutletNgModuleFactory: "ngComponentOutletNgModuleFactory"
+      ngComponentOutletNgModule: "ngComponentOutletNgModule"
     },
     exportAs: ["ngComponentOutlet"],
     features: [ɵɵNgOnChangesFeature]
@@ -2268,9 +1961,6 @@ var NgComponentOutlet = class _NgComponentOutlet {
     }],
     ngComponentOutletNgModule: [{
       type: Input
-    }],
-    ngComponentOutletNgModuleFactory: [{
-      type: Input
     }]
   });
 })();
@@ -2289,19 +1979,15 @@ var NgForOfContext = class {
     this.index = index;
     this.count = count;
   }
-  // Indicates whether this is the first item in the collection.
   get first() {
     return this.index === 0;
   }
-  // Indicates whether this is the last item in the collection.
   get last() {
     return this.index === this.count - 1;
   }
-  // Indicates whether an index of this item in the collection is even.
   get even() {
     return this.index % 2 === 0;
   }
-  // Indicates whether an index of this item in the collection is odd.
   get odd() {
     return !this.even;
   }
@@ -2310,34 +1996,10 @@ var NgForOf = class _NgForOf {
   _viewContainer;
   _template;
   _differs;
-  /**
-   * The value of the iterable expression, which can be used as a
-   * [template input variable](guide/directives/structural-directives#shorthand).
-   * @deprecated The `ngFor` directive is deprecated. Use the `@for` block instead.
-   */
   set ngForOf(ngForOf) {
     this._ngForOf = ngForOf;
     this._ngForOfDirty = true;
   }
-  /**
-   * Specifies a custom `TrackByFunction` to compute the identity of items in an iterable.
-   *
-   * If a custom `TrackByFunction` is not provided, `NgForOf` will use the item's [object
-   * identity](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is)
-   * as the key.
-   *
-   * `NgForOf` uses the computed key to associate items in an iterable with DOM elements
-   * it produces for these items.
-   *
-   * A custom `TrackByFunction` is useful to provide good user experience in cases when items in an
-   * iterable rendered using `NgForOf` have a natural identifier (for example, custom ID or a
-   * primary key), and this iterable could be updated with new object instances that still
-   * represent the same underlying entity (for example, when data is re-fetched from the server,
-   * and the iterable is recreated and re-rendered, but most of the data is still the same).
-   *
-   * @see {@link TrackByFunction}
-   * @deprecated The `ngFor` directive is deprecated. Use the `@for` block instead.
-   */
   set ngForTrackBy(fn) {
     if ((typeof ngDevMode === "undefined" || ngDevMode) && fn != null && typeof fn !== "function") {
       console.warn(`trackBy must be a function, but received ${JSON.stringify(fn)}. See https://angular.dev/api/common/NgForOf#change-propagation for more information.`);
@@ -2350,28 +2012,17 @@ var NgForOf = class _NgForOf {
   _ngForOf = null;
   _ngForOfDirty = true;
   _differ = null;
-  // waiting for microsoft/typescript#43662 to allow the return type `TrackByFunction|undefined` for
-  // the getter
   _trackByFn;
   constructor(_viewContainer, _template, _differs) {
     this._viewContainer = _viewContainer;
     this._template = _template;
     this._differs = _differs;
   }
-  /**
-   * A reference to the template that is stamped out for each item in the iterable.
-   * @see [template reference variable](guide/templates/variables#template-reference-variables)
-   * @deprecated The `ngFor` directive is deprecated. Use the `@for` block instead.
-   */
   set ngForTemplate(value) {
     if (value) {
       this._template = value;
     }
   }
-  /**
-   * Applies the changes when needed.
-   * @docs-private
-   */
   ngDoCheck() {
     if (this._ngForOfDirty) {
       this._ngForOfDirty = false;
@@ -2380,7 +2031,7 @@ var NgForOf = class _NgForOf {
         if (typeof ngDevMode === "undefined" || ngDevMode) {
           try {
             this._differ = this._differs.find(value).create(this.ngForTrackBy);
-          } catch {
+          } catch (e) {
             let errorMessage = `Cannot find a differ supporting object '${value}' of type '${getTypeName(value)}'. NgFor only supports binding to Iterables, such as Arrays.`;
             if (typeof value === "object") {
               errorMessage += " Did you mean to use the keyvalue pipe?";
@@ -2422,12 +2073,6 @@ var NgForOf = class _NgForOf {
       applyViewChange(viewRef, record);
     });
   }
-  /**
-   * Asserts the correct type of the context for the template that `NgForOf` will render.
-   *
-   * The presence of this method is a signal to the Ivy template type-check compiler that the
-   * `NgForOf` structural directive renders its template with a specific context type.
-   */
   static ngTemplateContextGuard(dir, ctx) {
     return true;
   }
@@ -2485,28 +2130,16 @@ var NgIf = class _NgIf {
     this._viewContainer = _viewContainer;
     this._thenTemplateRef = templateRef;
   }
-  /**
-   * The Boolean expression to evaluate as the condition for showing a template.
-   * @deprecated Use the `@if` block instead. Intent to remove in v22
-   */
   set ngIf(condition) {
     this._context.$implicit = this._context.ngIf = condition;
     this._updateView();
   }
-  /**
-   * A template to show if the condition expression evaluates to true.
-   * @deprecated Use the `@if` block instead. Intent to remove in v22
-   */
   set ngIfThen(templateRef) {
     assertTemplate(templateRef, (typeof ngDevMode === "undefined" || ngDevMode) && "ngIfThen");
     this._thenTemplateRef = templateRef;
     this._thenViewRef = null;
     this._updateView();
   }
-  /**
-   * A template to show if the condition expression evaluates to false.
-   * @deprecated Use the `@if` block instead. Intent to remove in v22
-   */
   set ngIfElse(templateRef) {
     assertTemplate(templateRef, (typeof ngDevMode === "undefined" || ngDevMode) && "ngIfElse");
     this._elseTemplateRef = templateRef;
@@ -2532,23 +2165,8 @@ var NgIf = class _NgIf {
       }
     }
   }
-  /** @internal */
   static ngIfUseIfTypeGuard;
-  /**
-   * Assert the correct type of the expression bound to the `ngIf` input within the template.
-   *
-   * The presence of this static field is a signal to the Ivy template type check compiler that
-   * when the `NgIf` structural directive renders its template, the type of the expression bound
-   * to `ngIf` should be narrowed in some way. For `NgIf`, the binding expression itself is used to
-   * narrow its type, which allows the strictNullChecks feature of TypeScript to work with `NgIf`.
-   */
   static ngTemplateGuard_ngIf;
-  /**
-   * Asserts the correct type of the context for the template that `NgIf` will render.
-   *
-   * The presence of this method is a signal to the Ivy template type-check compiler that the
-   * `NgIf` structural directive renders its template with a specific context type.
-   */
   static ngTemplateContextGuard(dir, ctx) {
     return true;
   }
@@ -2627,22 +2245,18 @@ var NgSwitch = class _NgSwitch {
   _lastCaseCheckIndex = 0;
   _lastCasesMatched = false;
   _ngSwitch;
-  /** @deprecated Use the `@switch` block instead. Intent to remove in v22 */
   set ngSwitch(newValue) {
     this._ngSwitch = newValue;
     if (this._caseCount === 0) {
       this._updateDefaultCases(true);
     }
   }
-  /** @internal */
   _addCase() {
     return this._caseCount++;
   }
-  /** @internal */
   _addDefault(view) {
     this._defaultViews.push(view);
   }
-  /** @internal */
   _matchCase(value) {
     const matched = value === this._ngSwitch;
     this._lastCasesMatched ||= matched;
@@ -2688,10 +2302,6 @@ var NgSwitch = class _NgSwitch {
 var NgSwitchCase = class _NgSwitchCase {
   ngSwitch;
   _view;
-  /**
-   * Stores the HTML template to be selected on match.
-   * @deprecated Use the `@case` block within a `@switch` block instead. Intent to remove in v22
-   */
   ngSwitchCase;
   constructor(viewContainer, templateRef, ngSwitch) {
     this.ngSwitch = ngSwitch;
@@ -2701,10 +2311,6 @@ var NgSwitchCase = class _NgSwitchCase {
     ngSwitch._addCase();
     this._view = new SwitchView(viewContainer, templateRef);
   }
-  /**
-   * Performs case matching. For internal use only.
-   * @docs-private
-   */
   ngDoCheck() {
     this._view.enforceState(this.ngSwitch._matchCase(this.ngSwitchCase));
   }
@@ -2942,18 +2548,8 @@ var NgStyle = class _NgStyle {
 var NgTemplateOutlet = class _NgTemplateOutlet {
   _viewContainerRef;
   _viewRef = null;
-  /**
-   * A context object to attach to the {@link EmbeddedViewRef}. This should be an
-   * object, the object's keys will be available for binding by the local template `let`
-   * declarations.
-   * Using the key `$implicit` in the context object will set its value as default.
-   */
   ngTemplateOutletContext = null;
-  /**
-   * A string defining the template reference and optionally the context object for the template.
-   */
   ngTemplateOutlet = null;
-  /** Injector to be used within the embedded view. */
   ngTemplateOutletInjector = null;
   constructor(_viewContainerRef) {
     this._viewContainerRef = _viewContainerRef;
@@ -2974,19 +2570,9 @@ var NgTemplateOutlet = class _NgTemplateOutlet {
       });
     }
   }
-  /**
-   * We need to re-create existing embedded view if either is true:
-   * - the outlet changed.
-   * - the injector changed.
-   */
   _shouldRecreateView(changes) {
     return !!changes["ngTemplateOutlet"] || !!changes["ngTemplateOutletInjector"];
   }
-  /**
-   * For a given outlet instance, we create a proxy object that delegates
-   * to the user-specified context. This allows changing, or swapping out
-   * the context object completely without having to destroy/re-create the view.
-   */
   _createContextForwardProxy() {
     return new Proxy({}, {
       set: (_target, prop, newValue) => {
@@ -3054,12 +2640,7 @@ var SubscribableStrategy = class {
 };
 var PromiseStrategy = class {
   createSubscription(async, updateLatestValue, onError) {
-    async.then(
-      // Using optional chaining because we may have set it to `null`; since the promise
-      // is async, the view might be destroyed by the time the promise resolves.
-      (v) => updateLatestValue?.(v),
-      (e) => onError?.(e)
-    );
+    async.then((v) => updateLatestValue?.(v), (e) => onError?.(e));
     return {
       unsubscribe: () => {
         updateLatestValue = null;
@@ -3159,9 +2740,7 @@ var AsyncPipe = class _AsyncPipe {
 var LowerCasePipe = class _LowerCasePipe {
   transform(value) {
     if (value == null) return null;
-    if (typeof value !== "string") {
-      throw invalidPipeArgumentError(_LowerCasePipe, value);
-    }
+    assertPipeArgument(_LowerCasePipe, value);
     return value.toLowerCase();
   }
   static ɵfac = function LowerCasePipe_Factory(__ngFactoryType__) {
@@ -3185,9 +2764,7 @@ var unicodeWordMatch = /(?:[0-9A-Za-z\xAA\xB5\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u
 var TitleCasePipe = class _TitleCasePipe {
   transform(value) {
     if (value == null) return null;
-    if (typeof value !== "string") {
-      throw invalidPipeArgumentError(_TitleCasePipe, value);
-    }
+    assertPipeArgument(_TitleCasePipe, value);
     return value.replace(unicodeWordMatch, (txt) => txt[0].toUpperCase() + txt.slice(1).toLowerCase());
   }
   static ɵfac = function TitleCasePipe_Factory(__ngFactoryType__) {
@@ -3210,9 +2787,7 @@ var TitleCasePipe = class _TitleCasePipe {
 var UpperCasePipe = class _UpperCasePipe {
   transform(value) {
     if (value == null) return null;
-    if (typeof value !== "string") {
-      throw invalidPipeArgumentError(_UpperCasePipe, value);
-    }
+    assertPipeArgument(_UpperCasePipe, value);
     return value.toUpperCase();
   }
   static ɵfac = function UpperCasePipe_Factory(__ngFactoryType__) {
@@ -3232,9 +2807,14 @@ var UpperCasePipe = class _UpperCasePipe {
     }]
   }], null, null);
 })();
+function assertPipeArgument(pipe, value) {
+  if (typeof value !== "string") {
+    throw invalidPipeArgumentError(pipe, value);
+  }
+}
 var DEFAULT_DATE_FORMAT = "mediumDate";
-var DATE_PIPE_DEFAULT_TIMEZONE = new InjectionToken(ngDevMode ? "DATE_PIPE_DEFAULT_TIMEZONE" : "");
-var DATE_PIPE_DEFAULT_OPTIONS = new InjectionToken(ngDevMode ? "DATE_PIPE_DEFAULT_OPTIONS" : "");
+var DATE_PIPE_DEFAULT_TIMEZONE = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "DATE_PIPE_DEFAULT_TIMEZONE" : "");
+var DATE_PIPE_DEFAULT_OPTIONS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "DATE_PIPE_DEFAULT_OPTIONS" : "");
 var DatePipe = class _DatePipe {
   locale;
   defaultTimezone;
@@ -3299,13 +2879,6 @@ var I18nPluralPipe = class _I18nPluralPipe {
   constructor(_localization) {
     this._localization = _localization;
   }
-  /**
-   * @param value the number to be formatted
-   * @param pluralMap an object that mimics the ICU format, see
-   * https://unicode-org.github.io/icu/userguide/format_parse/messages/.
-   * @param locale a `string` defining the locale to use (uses the current {@link LOCALE_ID} by
-   * default).
-   */
   transform(value, pluralMap, locale) {
     if (value == null) return "";
     if (typeof pluralMap !== "object" || pluralMap === null) {
@@ -3334,11 +2907,6 @@ var I18nPluralPipe = class _I18nPluralPipe {
   }], null);
 })();
 var I18nSelectPipe = class _I18nSelectPipe {
-  /**
-   * @param value a string to be internationalized.
-   * @param mapping an object that indicates the text that should be displayed
-   * for different values of the provided `value`.
-   */
   transform(value, mapping) {
     if (value == null) return "";
     if (typeof mapping !== "object" || typeof value !== "string") {
@@ -3370,9 +2938,6 @@ var I18nSelectPipe = class _I18nSelectPipe {
   }], null, null);
 })();
 var JsonPipe = class _JsonPipe {
-  /**
-   * @param value A value of any type to convert into a JSON-format string.
-   */
   transform(value) {
     return JSON.stringify(value, null, 2);
   }
@@ -3511,22 +3076,6 @@ var PercentPipe = class _PercentPipe {
   constructor(_locale) {
     this._locale = _locale;
   }
-  /**
-   *
-   * @param value The number to be formatted as a percentage.
-   * @param digitsInfo Decimal representation options, specified by a string
-   * in the following format:<br>
-   * <code>{minIntegerDigits}.{minFractionDigits}-{maxFractionDigits}</code>.
-   *   - `minIntegerDigits`: The minimum number of integer digits before the decimal point.
-   * Default is `1`.
-   *   - `minFractionDigits`: The minimum number of digits after the decimal point.
-   * Default is `0`.
-   *   - `maxFractionDigits`: The maximum number of digits after the decimal point.
-   * Default is `0`.
-   * @param locale A locale code for the locale format rules to use.
-   * When not supplied, uses the value of `LOCALE_ID`, which is `en-US` by default.
-   * See [Setting your app locale](guide/i18n/locale-id).
-   */
   transform(value, digitsInfo, locale) {
     if (!isValue(value)) return null;
     locale ||= this._locale;
@@ -3681,22 +3230,12 @@ var CommonModule = class _CommonModule {
   }], null, null);
 })();
 
-// node_modules/@angular/common/fesm2022/xhr.mjs
-function parseCookieValue(cookieStr, name) {
-  name = encodeURIComponent(name);
-  for (const cookie of cookieStr.split(";")) {
-    const eqIndex = cookie.indexOf("=");
-    const [cookieName, cookieValue] = eqIndex == -1 ? [cookie, ""] : [cookie.slice(0, eqIndex), cookie.slice(eqIndex + 1)];
-    if (cookieName.trim() === name) {
-      return decodeURIComponent(cookieValue);
-    }
+// node_modules/@angular/common/fesm2022/_platform_navigation-chunk.mjs
+var PRECOMMIT_HANDLER_SUPPORTED = new InjectionToken("", {
+  factory: () => {
+    return typeof window !== "undefined" && typeof window.NavigationPrecommitController !== "undefined";
   }
-  return null;
-}
-var XhrFactory = class {
-};
-
-// node_modules/@angular/common/fesm2022/platform_navigation.mjs
+});
 var PlatformNavigation = class _PlatformNavigation {
   static ɵfac = function PlatformNavigation_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _PlatformNavigation)();
@@ -3717,46 +3256,98 @@ var PlatformNavigation = class _PlatformNavigation {
   }], null, null);
 })();
 
+// node_modules/@angular/common/fesm2022/_xhr-chunk.mjs
+function parseCookieValue(cookieStr, name) {
+  name = encodeURIComponent(name);
+  for (const cookie of cookieStr.split(";")) {
+    const eqIndex = cookie.indexOf("=");
+    const [cookieName, cookieValue] = eqIndex == -1 ? [cookie, ""] : [cookie.slice(0, eqIndex), cookie.slice(eqIndex + 1)];
+    if (cookieName.trim() === name) {
+      return decodeURIComponent(cookieValue);
+    }
+  }
+  return null;
+}
+var XhrFactory = class {
+};
+
 // node_modules/@angular/common/fesm2022/common.mjs
-function registerLocaleData2(data, localeId, extraData) {
-  return registerLocaleData(data, localeId, extraData);
-}
+var NavigationAdapterForLocation = class _NavigationAdapterForLocation extends Location {
+  navigation = inject(PlatformNavigation);
+  destroyRef = inject(DestroyRef);
+  constructor() {
+    super(inject(LocationStrategy));
+    this.registerNavigationListeners();
+  }
+  registerNavigationListeners() {
+    const currentEntryChangeListener = () => {
+      this._notifyUrlChangeListeners(this.path(true), this.getState());
+    };
+    this.navigation.addEventListener("currententrychange", currentEntryChangeListener);
+    this.destroyRef.onDestroy(() => {
+      this.navigation.removeEventListener("currententrychange", currentEntryChangeListener);
+    });
+  }
+  getState() {
+    return this.navigation.currentEntry?.getState();
+  }
+  replaceState(path, query = "", state = null) {
+    const url = this.prepareExternalUrl(path + normalizeQueryParams(query));
+    this.navigation.navigate(url, {
+      state,
+      history: "replace"
+    });
+  }
+  go(path, query = "", state = null) {
+    const url = this.prepareExternalUrl(path + normalizeQueryParams(query));
+    this.navigation.navigate(url, {
+      state,
+      history: "push"
+    });
+  }
+  back() {
+    this.navigation.back();
+  }
+  forward() {
+    this.navigation.forward();
+  }
+  onUrlChange(fn) {
+    this._urlChangeListeners.push(fn);
+    return () => {
+      const fnIndex = this._urlChangeListeners.indexOf(fn);
+      this._urlChangeListeners.splice(fnIndex, 1);
+    };
+  }
+  static ɵfac = function NavigationAdapterForLocation_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NavigationAdapterForLocation)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _NavigationAdapterForLocation,
+    factory: _NavigationAdapterForLocation.ɵfac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NavigationAdapterForLocation, [{
+    type: Injectable
+  }], () => [], null);
+})();
 var PLATFORM_BROWSER_ID = "browser";
-var PLATFORM_SERVER_ID = "server";
-function isPlatformBrowser(platformId) {
-  return platformId === PLATFORM_BROWSER_ID;
-}
-function isPlatformServer(platformId) {
-  return platformId === PLATFORM_SERVER_ID;
-}
-var VERSION = new Version("20.3.16");
+var VERSION = new Version("21.1.4");
 var ViewportScroller = class _ViewportScroller {
-  // De-sugared tree-shakable injection
-  // See #23917
-  /** @nocollapse */
-  static ɵprov = (
-    /** @pureOrBreakMyCode */
-    ɵɵdefineInjectable({
-      token: _ViewportScroller,
-      providedIn: "root",
-      factory: () => false ? new NullViewportScroller() : new BrowserViewportScroller(inject(DOCUMENT), window)
-    })
-  );
+  static ɵprov = ɵɵdefineInjectable({
+    token: _ViewportScroller,
+    providedIn: "root",
+    factory: () => false ? new NullViewportScroller() : new BrowserViewportScroller(inject(DOCUMENT), window)
+  });
 };
 var BrowserViewportScroller = class {
   document;
   window;
   offset = () => [0, 0];
-  constructor(document, window2) {
-    this.document = document;
+  constructor(document2, window2) {
+    this.document = document2;
     this.window = window2;
   }
-  /**
-   * Configures the top offset used when scrolling to an anchor.
-   * @param offset A position in screen coordinates (a tuple with x and y values)
-   * or a function that returns the top offset position.
-   *
-   */
   setOffset(offset) {
     if (Array.isArray(offset)) {
       this.offset = () => offset;
@@ -3764,34 +3355,15 @@ var BrowserViewportScroller = class {
       this.offset = offset;
     }
   }
-  /**
-   * Retrieves the current scroll position.
-   * @returns The position in screen coordinates.
-   */
   getScrollPosition() {
     return [this.window.scrollX, this.window.scrollY];
   }
-  /**
-   * Sets the scroll position.
-   * @param position The new position in screen coordinates.
-   */
   scrollToPosition(position, options) {
     this.window.scrollTo(__spreadProps(__spreadValues({}, options), {
       left: position[0],
       top: position[1]
     }));
   }
-  /**
-   * Scrolls to an element and attempts to focus the element.
-   *
-   * Note that the function name here is misleading in that the target string may be an ID for a
-   * non-anchor element.
-   *
-   * @param target The ID of an element or name of the anchor.
-   *
-   * @see https://html.spec.whatwg.org/#the-indicated-part-of-the-document
-   * @see https://html.spec.whatwg.org/#scroll-to-fragid
-   */
   scrollToAnchor(target, options) {
     const elSelected = findAnchorFromDocument(this.document, target);
     if (elSelected) {
@@ -3799,22 +3371,13 @@ var BrowserViewportScroller = class {
       elSelected.focus();
     }
   }
-  /**
-   * Disables automatic scroll restoration provided by the browser.
-   */
   setHistoryScrollRestoration(scrollRestoration) {
     try {
       this.window.history.scrollRestoration = scrollRestoration;
-    } catch {
+    } catch (e) {
       console.warn(formatRuntimeError(2400, ngDevMode && "Failed to set `window.history.scrollRestoration`. This may occur when:\n• The script is running inside a sandboxed iframe\n• The window is partially navigated or inactive\n• The script is executed in an untrusted or special context (e.g., test runners, browser extensions, or content previews)\nScroll position may not be preserved across navigation."));
     }
   }
-  /**
-   * Scrolls to an element using the native offset and the specified offset set on this scroller.
-   *
-   * The offset can be used when we know that there is a floating header and scrolling naively to an
-   * element (ex: `scrollIntoView`) leaves the element hidden behind the floating header.
-   */
   scrollToElement(el, options) {
     const rect = el.getBoundingClientRect();
     const left = rect.left + this.window.pageXOffset;
@@ -3826,13 +3389,13 @@ var BrowserViewportScroller = class {
     }));
   }
 };
-function findAnchorFromDocument(document, target) {
-  const documentResult = document.getElementById(target) || document.getElementsByName(target)[0];
+function findAnchorFromDocument(document2, target) {
+  const documentResult = document2.getElementById(target) || document2.getElementsByName(target)[0];
   if (documentResult) {
     return documentResult;
   }
-  if (typeof document.createTreeWalker === "function" && document.body && typeof document.body.attachShadow === "function") {
-    const treeWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT);
+  if (typeof document2.createTreeWalker === "function" && document2.body && typeof document2.body.attachShadow === "function") {
+    const treeWalker = document2.createTreeWalker(document2.body, NodeFilter.SHOW_ELEMENT);
     let currentNode = treeWalker.currentNode;
     while (currentNode) {
       const shadowRoot = currentNode.shadowRoot;
@@ -3847,34 +3410,6 @@ function findAnchorFromDocument(document, target) {
   }
   return null;
 }
-var NullViewportScroller = class {
-  /**
-   * Empty implementation
-   */
-  setOffset(offset) {
-  }
-  /**
-   * Empty implementation
-   */
-  getScrollPosition() {
-    return [0, 0];
-  }
-  /**
-   * Empty implementation
-   */
-  scrollToPosition(position) {
-  }
-  /**
-   * Empty implementation
-   */
-  scrollToAnchor(anchor) {
-  }
-  /**
-   * Empty implementation
-   */
-  setHistoryScrollRestoration(scrollRestoration) {
-  }
-};
 var PLACEHOLDER_QUALITY = "20";
 function getUrl(src, win) {
   return isAbsoluteUrl(src) ? new URL(src) : new URL(src, win.location.href);
@@ -3893,7 +3428,7 @@ function isValidPath(path) {
   try {
     const url = new URL(path);
     return true;
-  } catch {
+  } catch (e) {
     return false;
   }
 }
@@ -3904,8 +3439,7 @@ function normalizeSrc(src) {
   return src.startsWith("/") ? src.slice(1) : src;
 }
 var noopImageLoader = (config) => config.src;
-var IMAGE_LOADER = new InjectionToken(ngDevMode ? "ImageLoader" : "", {
-  providedIn: "root",
+var IMAGE_LOADER = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "ImageLoader" : "", {
   factory: () => noopImageLoader
 });
 function createImageLoader(buildUrlFn, exampleUrls) {
@@ -3935,6 +3469,12 @@ function throwInvalidPathError(path, exampleUrls) {
 function throwUnexpectedAbsoluteUrlError(path, url) {
   throw new RuntimeError(2959, ngDevMode && `Image loader has detected a \`<img>\` tag with an invalid \`ngSrc\` attribute: ${url}. This image loader expects \`ngSrc\` to be a relative URL - however the provided value is an absolute URL. To fix this, provide \`ngSrc\` as a path relative to the base URL configured for this loader (\`${path}\`).`);
 }
+function normalizeLoaderTransform(transform, separator) {
+  if (typeof transform === "string") {
+    return transform;
+  }
+  return Object.entries(transform).map(([key, value]) => `${key}${separator}${value}`).join(",");
+}
 var provideCloudflareLoader = createImageLoader(createCloudflareUrl, ngDevMode ? ["https://<ZONE>/cdn-cgi/image/<OPTIONS>/<SOURCE-IMAGE>"] : void 0);
 function createCloudflareUrl(path, config) {
   let params = `format=auto`;
@@ -3943,6 +3483,10 @@ function createCloudflareUrl(path, config) {
   }
   if (config.isPlaceholder) {
     params += `,quality=${PLACEHOLDER_QUALITY}`;
+  }
+  if (config.loaderParams?.["transform"]) {
+    const transformStr = normalizeLoaderTransform(config.loaderParams["transform"], "=");
+    params += `,${transformStr}`;
   }
   return `${path}/cdn-cgi/image/${params}/${config.src}`;
 }
@@ -3963,6 +3507,10 @@ function createCloudinaryUrl(path, config) {
   }
   if (config.loaderParams?.["rounded"]) {
     params += `,r_max`;
+  }
+  if (config.loaderParams?.["transform"]) {
+    const transformStr = normalizeLoaderTransform(config.loaderParams["transform"], "_");
+    params += `,${transformStr}`;
   }
   return `${path}/image/upload/${params}/${config.src}`;
 }
@@ -3987,6 +3535,10 @@ function createImagekitUrl(path, config) {
   if (config.isPlaceholder) {
     params.push(`q-${PLACEHOLDER_QUALITY}`);
   }
+  if (config.loaderParams?.["transform"]) {
+    const transformStr = normalizeLoaderTransform(config.loaderParams["transform"], "-");
+    params.push(transformStr);
+  }
   const urlSegments = params.length ? [path, `tr:${params.join(",")}`, src] : [path, src];
   const url = new URL(urlSegments.join("/"));
   return url.href;
@@ -4001,14 +3553,20 @@ function isImgixUrl(url) {
 }
 var provideImgixLoader = createImageLoader(createImgixUrl, ngDevMode ? ["https://somepath.imgix.net/"] : void 0);
 function createImgixUrl(path, config) {
-  const url = new URL(`${path}/${config.src}`);
-  url.searchParams.set("auto", "format");
+  const params = [];
+  params.push("auto=format");
   if (config.width) {
-    url.searchParams.set("w", config.width.toString());
+    params.push(`w=${config.width}`);
   }
   if (config.isPlaceholder) {
-    url.searchParams.set("q", PLACEHOLDER_QUALITY);
+    params.push(`q=${PLACEHOLDER_QUALITY}`);
   }
+  if (config.loaderParams?.["transform"]) {
+    const transform = normalizeLoaderTransform(config.loaderParams["transform"], "=").split(",");
+    params.push(...transform);
+  }
+  const url = new URL(`${path}/${config.src}`);
+  url.search = params.join("&");
   return url.href;
 }
 var netlifyLoaderInfo = {
@@ -4018,49 +3576,6 @@ var netlifyLoaderInfo = {
 var NETLIFY_LOADER_REGEX = /https?\:\/\/[^\/]+\.netlify\.app\/.+/;
 function isNetlifyUrl(url) {
   return NETLIFY_LOADER_REGEX.test(url);
-}
-function provideNetlifyLoader(path) {
-  if (path && !isValidPath(path)) {
-    throw new RuntimeError(2959, ngDevMode && `Image loader has detected an invalid path (\`${path}\`). To fix this, supply either the full URL to the Netlify site, or leave it empty to use the current site.`);
-  }
-  if (path) {
-    const url = new URL(path);
-    path = url.origin;
-  }
-  const loaderFn = (config) => {
-    return createNetlifyUrl(config, path);
-  };
-  const providers = [{
-    provide: IMAGE_LOADER,
-    useValue: loaderFn
-  }];
-  return providers;
-}
-var validParams = /* @__PURE__ */ new Map([["height", "h"], ["fit", "fit"], ["quality", "q"], ["q", "q"], ["position", "position"]]);
-function createNetlifyUrl(config, path) {
-  const url = new URL(path ?? "https://a/");
-  url.pathname = "/.netlify/images";
-  if (!isAbsoluteUrl(config.src) && !config.src.startsWith("/")) {
-    config.src = "/" + config.src;
-  }
-  url.searchParams.set("url", config.src);
-  if (config.width) {
-    url.searchParams.set("w", config.width.toString());
-  }
-  const configQuality = config.loaderParams?.["quality"] ?? config.loaderParams?.["q"];
-  if (config.isPlaceholder && !configQuality) {
-    url.searchParams.set("q", PLACEHOLDER_QUALITY);
-  }
-  for (const [param, value] of Object.entries(config.loaderParams ?? {})) {
-    if (validParams.has(param)) {
-      url.searchParams.set(validParams.get(param), value.toString());
-    } else {
-      if (ngDevMode) {
-        console.warn(formatRuntimeError(2959, `The Netlify image loader has detected an \`<img>\` tag with the unsupported attribute "\`${param}\`".`));
-      }
-    }
-  }
-  return url.hostname === "a" ? url.href.replace(url.origin, "") : url.href;
 }
 function imgDirectiveDetails(ngSrc, includeNgSrc = true) {
   const ngSrcInfo = includeNgSrc ? `(activated on an <img> element with the \`ngSrc="${ngSrc}"\`) ` : "";
@@ -4072,7 +3587,6 @@ function assertDevMode(checkName) {
   }
 }
 var LCPImageObserver = class _LCPImageObserver {
-  // Map of full image URLs -> original `ngSrc` values.
   images = /* @__PURE__ */ new Map();
   window = inject(DOCUMENT).defaultView;
   observer = null;
@@ -4082,10 +3596,6 @@ var LCPImageObserver = class _LCPImageObserver {
       this.observer = this.initPerformanceObserver();
     }
   }
-  /**
-   * Inits PerformanceObserver and subscribes to LCP events.
-   * Based on https://web.dev/lcp/#measure-lcp-in-javascript
-   */
   initPerformanceObserver() {
     const observer = new PerformanceObserver((entryList) => {
       const entries = entryList.getEntries();
@@ -4165,17 +3675,10 @@ function logModifiedWarning(ngSrc) {
   console.warn(formatRuntimeError(2964, `${directiveDetails} this image is the Largest Contentful Paint (LCP) element and has had its "ngSrc" attribute modified. This can cause slower loading performance. It is recommended not to modify the "ngSrc" property on any image which could be the LCP element.`));
 }
 var INTERNAL_PRECONNECT_CHECK_BLOCKLIST = /* @__PURE__ */ new Set(["localhost", "127.0.0.1", "0.0.0.0", "[::1]"]);
-var PRECONNECT_CHECK_BLOCKLIST = new InjectionToken(ngDevMode ? "PRECONNECT_CHECK_BLOCKLIST" : "");
+var PRECONNECT_CHECK_BLOCKLIST = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "PRECONNECT_CHECK_BLOCKLIST" : "");
 var PreconnectLinkChecker = class _PreconnectLinkChecker {
   document = inject(DOCUMENT);
-  /**
-   * Set of <link rel="preconnect"> tags found on this page.
-   * The `null` value indicates that there was no DOM query operation performed.
-   */
   preconnectLinks = null;
-  /*
-   * Keep track of all already seen origin URLs to avoid repeating the same check.
-   */
   alreadySeen = /* @__PURE__ */ new Set();
   window = this.document.defaultView;
   blocklist = new Set(INTERNAL_PRECONNECT_CHECK_BLOCKLIST);
@@ -4197,13 +3700,6 @@ var PreconnectLinkChecker = class _PreconnectLinkChecker {
       this.blocklist.add(extractHostname(origins));
     }
   }
-  /**
-   * Checks that a preconnect resource hint exists in the head for the
-   * given src.
-   *
-   * @param rewrittenSrc src formatted with loader
-   * @param originalNgSrc ngSrc value
-   */
   assertPreconnect(rewrittenSrc, originalNgSrc) {
     if (false) return;
     const imgUrl = getUrl(rewrittenSrc, this.window);
@@ -4252,29 +3748,12 @@ function deepForEach(input, fn) {
 }
 var DEFAULT_PRELOADED_IMAGES_LIMIT = 5;
 var PRELOADED_IMAGES = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "NG_OPTIMIZED_PRELOADED_IMAGES" : "", {
-  providedIn: "root",
   factory: () => /* @__PURE__ */ new Set()
 });
 var PreloadLinkCreator = class _PreloadLinkCreator {
   preloadedImages = inject(PRELOADED_IMAGES);
   document = inject(DOCUMENT);
   errorShown = false;
-  /**
-   * @description Add a preload `<link>` to the `<head>` of the `index.html` that is served from the
-   * server while using Angular Universal and SSR to kick off image loads for high priority images.
-   *
-   * The `sizes` (passed in from the user) and `srcset` (parsed and formatted from `ngSrcset`)
-   * properties used to set the corresponding attributes, `imagesizes` and `imagesrcset`
-   * respectively, on the preload `<link>` tag so that the correctly sized image is preloaded from
-   * the CDN.
-   *
-   * {@link https://web.dev/preload-responsive-images/#imagesrcset-and-imagesizes}
-   *
-   * @param renderer The `Renderer2` passed in from the directive
-   * @param src The original src of the image that is set on the `ngSrc` input.
-   * @param srcset The parsed and formatted srcset created from the `ngSrcset` input
-   * @param sizes The value of the `sizes` attribute passed in to the `<img>` tag
-   */
   createPreloadLinkTag(renderer, src, srcset, sizes) {
     if (ngDevMode && !this.errorShown && this.preloadedImages.size >= DEFAULT_PRELOADED_IMAGES_LIMIT) {
       this.errorShown = true;
@@ -4338,108 +3817,22 @@ var NgOptimizedImage = class _NgOptimizedImage {
   imgElement = inject(ElementRef).nativeElement;
   injector = inject(Injector);
   destroyRef = inject(DestroyRef);
-  // An LCP image observer should be injected only in development mode.
-  // Do not assign it to `null` to avoid having a redundant property in the production bundle.
   lcpObserver;
-  /**
-   * Calculate the rewritten `src` once and store it.
-   * This is needed to avoid repetitive calculations and make sure the directive cleanup in the
-   * `ngOnDestroy` does not rely on the `IMAGE_LOADER` logic (which in turn can rely on some other
-   * instance that might be already destroyed).
-   */
   _renderedSrc = null;
-  /**
-   * Name of the source image.
-   * Image name will be processed by the image loader and the final URL will be applied as the `src`
-   * property of the image.
-   */
   ngSrc;
-  /**
-   * A comma separated list of width or density descriptors.
-   * The image name will be taken from `ngSrc` and combined with the list of width or density
-   * descriptors to generate the final `srcset` property of the image.
-   *
-   * Example:
-   * ```html
-   * <img ngSrc="hello.jpg" ngSrcset="100w, 200w" />  =>
-   * <img src="path/hello.jpg" srcset="path/hello.jpg?w=100 100w, path/hello.jpg?w=200 200w" />
-   * ```
-   */
   ngSrcset;
-  /**
-   * The base `sizes` attribute passed through to the `<img>` element.
-   * Providing sizes causes the image to create an automatic responsive srcset.
-   */
   sizes;
-  /**
-   * For responsive images: the intrinsic width of the image in pixels.
-   * For fixed size images: the desired rendered width of the image in pixels.
-   */
   width;
-  /**
-   * For responsive images: the intrinsic height of the image in pixels.
-   * For fixed size images: the desired rendered height of the image in pixels.
-   */
   height;
-  /**
-   * The desired decoding behavior for the image. Defaults to `auto`
-   * if not explicitly set, matching native browser behavior.
-   *
-   * Use `async` to decode the image off the main thread (non-blocking),
-   * `sync` for immediate decoding (blocking), or `auto` to let the
-   * browser decide the optimal strategy.
-   *
-   * [Spec](https://html.spec.whatwg.org/multipage/images.html#image-decoding-hint)
-   */
   decoding;
-  /**
-   * The desired loading behavior (lazy, eager, or auto). Defaults to `lazy`,
-   * which is recommended for most images.
-   *
-   * Warning: Setting images as loading="eager" or loading="auto" marks them
-   * as non-priority images and can hurt loading performance. For images which
-   * may be the LCP element, use the `priority` attribute instead of `loading`.
-   */
   loading;
-  /**
-   * Indicates whether this image should have a high priority.
-   */
   priority = false;
-  /**
-   * Data to pass through to custom loaders.
-   */
   loaderParams;
-  /**
-   * Disables automatic srcset generation for this image.
-   */
   disableOptimizedSrcset = false;
-  /**
-   * Sets the image to "fill mode", which eliminates the height/width requirement and adds
-   * styles such that the image fills its containing element.
-   */
   fill = false;
-  /**
-   * A URL or data URL for an image to be used as a placeholder while this image loads.
-   */
   placeholder;
-  /**
-   * Configuration object for placeholder settings. Options:
-   *   * blur: Setting this to false disables the automatic CSS blur.
-   */
   placeholderConfig;
-  /**
-   * Value of the `src` attribute if set on the host `<img>` element.
-   * This input is exclusively read to assert that `src` is not set in conflict
-   * with `ngSrc` and that images don't start to load until a lazy loading strategy is set.
-   * @internal
-   */
   src;
-  /**
-   * Value of the `srcset` attribute if set on the host `<img>` element.
-   * This input is exclusively read to assert that `srcset` is not set in conflict
-   * with `ngSrcset` and that images don't start to load until a lazy loading strategy is set.
-   * @internal
-   */
   srcset;
   constructor() {
     if (ngDevMode) {
@@ -4451,7 +3844,6 @@ var NgOptimizedImage = class _NgOptimizedImage {
       });
     }
   }
-  /** @docs-private */
   ngOnInit() {
     performanceMarkFeature("NgOptimizedImage");
     if (ngDevMode) {
@@ -4531,7 +3923,6 @@ var NgOptimizedImage = class _NgOptimizedImage {
       preloadLinkCreator.createPreloadLinkTag(this.renderer, this.getRewrittenSrc(), rewrittenSrcset, this.sizes);
     }
   }
-  /** @docs-private */
   ngOnChanges(changes) {
     if (ngDevMode) {
       assertNoPostInitInputChange(this, changes, ["ngSrcset", "width", "height", "priority", "fill", "loading", "sizes", "loaderParams", "disableOptimizedSrcset"]);
@@ -4648,11 +4039,6 @@ var NgOptimizedImage = class _NgOptimizedImage {
     }
     return !this.disableOptimizedSrcset && !this.srcset && this.imageLoader !== noopImageLoader && !oversizedImage;
   }
-  /**
-   * Returns an image url formatted for use with the CSS background-image property. Expects one of:
-   * * A base64 encoded image, which is wrapped and passed through.
-   * * A boolean. If true, calls the image loader to generate a small placeholder url.
-   */
   generatePlaceholder(placeholderInput) {
     const {
       placeholderResolution
@@ -4668,10 +4054,6 @@ var NgOptimizedImage = class _NgOptimizedImage {
     }
     return null;
   }
-  /**
-   * Determines if blur should be applied, based on an optional boolean
-   * property `blur` within the optional configuration object `placeholderConfig`.
-   */
   shouldBlurPlaceholder(placeholderConfig) {
     if (!placeholderConfig || !placeholderConfig.hasOwnProperty("blur")) {
       return true;
@@ -5110,113 +4492,1079 @@ function booleanOrUrlAttribute(value) {
   return booleanAttribute(value);
 }
 
+// node_modules/@angular/platform-browser/fesm2022/_dom_renderer-chunk.mjs
+var EventManagerPlugin = class {
+  _doc;
+  constructor(_doc) {
+    this._doc = _doc;
+  }
+  manager;
+};
+var DomEventsPlugin = class _DomEventsPlugin extends EventManagerPlugin {
+  constructor(doc) {
+    super(doc);
+  }
+  supports(eventName) {
+    return true;
+  }
+  addEventListener(element, eventName, handler, options) {
+    element.addEventListener(eventName, handler, options);
+    return () => this.removeEventListener(element, eventName, handler, options);
+  }
+  removeEventListener(target, eventName, callback, options) {
+    return target.removeEventListener(eventName, callback, options);
+  }
+  static ɵfac = function DomEventsPlugin_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _DomEventsPlugin)(ɵɵinject(DOCUMENT));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _DomEventsPlugin,
+    factory: _DomEventsPlugin.ɵfac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DomEventsPlugin, [{
+    type: Injectable
+  }], () => [{
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [DOCUMENT]
+    }]
+  }], null);
+})();
+var EVENT_MANAGER_PLUGINS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "EventManagerPlugins" : "");
+var EventManager = class _EventManager {
+  _zone;
+  _plugins;
+  _eventNameToPlugin = /* @__PURE__ */ new Map();
+  constructor(plugins, _zone) {
+    this._zone = _zone;
+    plugins.forEach((plugin) => {
+      plugin.manager = this;
+    });
+    const otherPlugins = plugins.filter((p) => !(p instanceof DomEventsPlugin));
+    this._plugins = otherPlugins.slice().reverse();
+    const domEventPlugin = plugins.find((p) => p instanceof DomEventsPlugin);
+    if (domEventPlugin) {
+      this._plugins.push(domEventPlugin);
+    }
+  }
+  addEventListener(element, eventName, handler, options) {
+    const plugin = this._findPluginFor(eventName);
+    return plugin.addEventListener(element, eventName, handler, options);
+  }
+  getZone() {
+    return this._zone;
+  }
+  _findPluginFor(eventName) {
+    let plugin = this._eventNameToPlugin.get(eventName);
+    if (plugin) {
+      return plugin;
+    }
+    const plugins = this._plugins;
+    plugin = plugins.find((plugin2) => plugin2.supports(eventName));
+    if (!plugin) {
+      throw new RuntimeError(5101, (typeof ngDevMode === "undefined" || ngDevMode) && `No event manager plugin found for event ${eventName}`);
+    }
+    this._eventNameToPlugin.set(eventName, plugin);
+    return plugin;
+  }
+  static ɵfac = function EventManager_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _EventManager)(ɵɵinject(EVENT_MANAGER_PLUGINS), ɵɵinject(NgZone));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _EventManager,
+    factory: _EventManager.ɵfac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(EventManager, [{
+    type: Injectable
+  }], () => [{
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [EVENT_MANAGER_PLUGINS]
+    }]
+  }, {
+    type: NgZone
+  }], null);
+})();
+var APP_ID_ATTRIBUTE_NAME = "ng-app-id";
+function removeElements(elements) {
+  for (const element of elements) {
+    element.remove();
+  }
+}
+function createStyleElement(style, doc) {
+  const styleElement = doc.createElement("style");
+  styleElement.textContent = style;
+  return styleElement;
+}
+function addServerStyles(doc, appId, inline, external) {
+  const elements = doc.head?.querySelectorAll(`style[${APP_ID_ATTRIBUTE_NAME}="${appId}"],link[${APP_ID_ATTRIBUTE_NAME}="${appId}"]`);
+  if (elements) {
+    for (const styleElement of elements) {
+      styleElement.removeAttribute(APP_ID_ATTRIBUTE_NAME);
+      if (styleElement instanceof HTMLLinkElement) {
+        external.set(styleElement.href.slice(styleElement.href.lastIndexOf("/") + 1), {
+          usage: 0,
+          elements: [styleElement]
+        });
+      } else if (styleElement.textContent) {
+        inline.set(styleElement.textContent, {
+          usage: 0,
+          elements: [styleElement]
+        });
+      }
+    }
+  }
+}
+function createLinkElement(url, doc) {
+  const linkElement = doc.createElement("link");
+  linkElement.setAttribute("rel", "stylesheet");
+  linkElement.setAttribute("href", url);
+  return linkElement;
+}
+var SharedStylesHost = class _SharedStylesHost {
+  doc;
+  appId;
+  nonce;
+  inline = /* @__PURE__ */ new Map();
+  external = /* @__PURE__ */ new Map();
+  hosts = /* @__PURE__ */ new Set();
+  constructor(doc, appId, nonce, platformId = {}) {
+    this.doc = doc;
+    this.appId = appId;
+    this.nonce = nonce;
+    addServerStyles(doc, appId, this.inline, this.external);
+    this.hosts.add(doc.head);
+  }
+  addStyles(styles, urls) {
+    for (const value of styles) {
+      this.addUsage(value, this.inline, createStyleElement);
+    }
+    urls?.forEach((value) => this.addUsage(value, this.external, createLinkElement));
+  }
+  removeStyles(styles, urls) {
+    for (const value of styles) {
+      this.removeUsage(value, this.inline);
+    }
+    urls?.forEach((value) => this.removeUsage(value, this.external));
+  }
+  addUsage(value, usages, creator) {
+    const record = usages.get(value);
+    if (record) {
+      if ((typeof ngDevMode === "undefined" || ngDevMode) && record.usage === 0) {
+        record.elements.forEach((element) => element.setAttribute("ng-style-reused", ""));
+      }
+      record.usage++;
+    } else {
+      usages.set(value, {
+        usage: 1,
+        elements: [...this.hosts].map((host) => this.addElement(host, creator(value, this.doc)))
+      });
+    }
+  }
+  removeUsage(value, usages) {
+    const record = usages.get(value);
+    if (record) {
+      record.usage--;
+      if (record.usage <= 0) {
+        removeElements(record.elements);
+        usages.delete(value);
+      }
+    }
+  }
+  ngOnDestroy() {
+    for (const [, {
+      elements
+    }] of [...this.inline, ...this.external]) {
+      removeElements(elements);
+    }
+    this.hosts.clear();
+  }
+  addHost(hostNode) {
+    this.hosts.add(hostNode);
+    for (const [style, {
+      elements
+    }] of this.inline) {
+      elements.push(this.addElement(hostNode, createStyleElement(style, this.doc)));
+    }
+    for (const [url, {
+      elements
+    }] of this.external) {
+      elements.push(this.addElement(hostNode, createLinkElement(url, this.doc)));
+    }
+  }
+  removeHost(hostNode) {
+    this.hosts.delete(hostNode);
+  }
+  addElement(host, element) {
+    if (this.nonce) {
+      element.setAttribute("nonce", this.nonce);
+    }
+    if (false) {
+      element.setAttribute(APP_ID_ATTRIBUTE_NAME, this.appId);
+    }
+    return host.appendChild(element);
+  }
+  static ɵfac = function SharedStylesHost_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _SharedStylesHost)(ɵɵinject(DOCUMENT), ɵɵinject(APP_ID), ɵɵinject(CSP_NONCE, 8), ɵɵinject(PLATFORM_ID));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _SharedStylesHost,
+    factory: _SharedStylesHost.ɵfac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SharedStylesHost, [{
+    type: Injectable
+  }], () => [{
+    type: Document,
+    decorators: [{
+      type: Inject,
+      args: [DOCUMENT]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [APP_ID]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [CSP_NONCE]
+    }, {
+      type: Optional
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [PLATFORM_ID]
+    }]
+  }], null);
+})();
+var NAMESPACE_URIS = {
+  "svg": "http://www.w3.org/2000/svg",
+  "xhtml": "http://www.w3.org/1999/xhtml",
+  "xlink": "http://www.w3.org/1999/xlink",
+  "xml": "http://www.w3.org/XML/1998/namespace",
+  "xmlns": "http://www.w3.org/2000/xmlns/",
+  "math": "http://www.w3.org/1998/Math/MathML"
+};
+var COMPONENT_REGEX = /%COMP%/g;
+var SOURCEMAP_URL_REGEXP = /\/\*#\s*sourceMappingURL=(.+?)\s*\*\//;
+var PROTOCOL_REGEXP = /^https?:/;
+var COMPONENT_VARIABLE = "%COMP%";
+var HOST_ATTR = `_nghost-${COMPONENT_VARIABLE}`;
+var CONTENT_ATTR = `_ngcontent-${COMPONENT_VARIABLE}`;
+var REMOVE_STYLES_ON_COMPONENT_DESTROY_DEFAULT = true;
+var REMOVE_STYLES_ON_COMPONENT_DESTROY = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "RemoveStylesOnCompDestroy" : "", {
+  factory: () => REMOVE_STYLES_ON_COMPONENT_DESTROY_DEFAULT
+});
+function shimContentAttribute(componentShortId) {
+  return CONTENT_ATTR.replace(COMPONENT_REGEX, componentShortId);
+}
+function shimHostAttribute(componentShortId) {
+  return HOST_ATTR.replace(COMPONENT_REGEX, componentShortId);
+}
+function shimStylesContent(compId, styles) {
+  return styles.map((s) => s.replace(COMPONENT_REGEX, compId));
+}
+function addBaseHrefToCssSourceMap(baseHref, styles) {
+  if (!baseHref) {
+    return styles;
+  }
+  const absoluteBaseHrefUrl = new URL(baseHref, "http://localhost");
+  return styles.map((cssContent) => {
+    if (!cssContent.includes("sourceMappingURL=")) {
+      return cssContent;
+    }
+    return cssContent.replace(SOURCEMAP_URL_REGEXP, (_, sourceMapUrl) => {
+      if (sourceMapUrl[0] === "/" || sourceMapUrl.startsWith("data:") || PROTOCOL_REGEXP.test(sourceMapUrl)) {
+        return `/*# sourceMappingURL=${sourceMapUrl} */`;
+      }
+      const {
+        pathname: resolvedSourceMapUrl
+      } = new URL(sourceMapUrl, absoluteBaseHrefUrl);
+      return `/*# sourceMappingURL=${resolvedSourceMapUrl} */`;
+    });
+  });
+}
+var DomRendererFactory2 = class _DomRendererFactory2 {
+  eventManager;
+  sharedStylesHost;
+  appId;
+  removeStylesOnCompDestroy;
+  doc;
+  ngZone;
+  nonce;
+  tracingService;
+  rendererByCompId = /* @__PURE__ */ new Map();
+  defaultRenderer;
+  constructor(eventManager, sharedStylesHost, appId, removeStylesOnCompDestroy, doc, ngZone, nonce = null, tracingService = null) {
+    this.eventManager = eventManager;
+    this.sharedStylesHost = sharedStylesHost;
+    this.appId = appId;
+    this.removeStylesOnCompDestroy = removeStylesOnCompDestroy;
+    this.doc = doc;
+    this.ngZone = ngZone;
+    this.nonce = nonce;
+    this.tracingService = tracingService;
+    this.defaultRenderer = new DefaultDomRenderer2(eventManager, doc, ngZone, this.tracingService);
+  }
+  createRenderer(element, type) {
+    if (!element || !type) {
+      return this.defaultRenderer;
+    }
+    if (false) {
+      type = __spreadProps(__spreadValues({}, type), {
+        encapsulation: ViewEncapsulation.Emulated
+      });
+    }
+    const renderer = this.getOrCreateRenderer(element, type);
+    if (renderer instanceof EmulatedEncapsulationDomRenderer2) {
+      renderer.applyToHost(element);
+    } else if (renderer instanceof NoneEncapsulationDomRenderer) {
+      renderer.applyStyles();
+    }
+    return renderer;
+  }
+  getOrCreateRenderer(element, type) {
+    const rendererByCompId = this.rendererByCompId;
+    let renderer = rendererByCompId.get(type.id);
+    if (!renderer) {
+      const doc = this.doc;
+      const ngZone = this.ngZone;
+      const eventManager = this.eventManager;
+      const sharedStylesHost = this.sharedStylesHost;
+      const removeStylesOnCompDestroy = this.removeStylesOnCompDestroy;
+      const tracingService = this.tracingService;
+      switch (type.encapsulation) {
+        case ViewEncapsulation.Emulated:
+          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type, this.appId, removeStylesOnCompDestroy, doc, ngZone, tracingService);
+          break;
+        case ViewEncapsulation.ShadowDom:
+          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService, sharedStylesHost);
+        case ViewEncapsulation.ExperimentalIsolatedShadowDom:
+          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService);
+        default:
+          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type, removeStylesOnCompDestroy, doc, ngZone, tracingService);
+          break;
+      }
+      rendererByCompId.set(type.id, renderer);
+    }
+    return renderer;
+  }
+  ngOnDestroy() {
+    this.rendererByCompId.clear();
+  }
+  componentReplaced(componentId) {
+    this.rendererByCompId.delete(componentId);
+  }
+  static ɵfac = function DomRendererFactory2_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _DomRendererFactory2)(ɵɵinject(EventManager), ɵɵinject(SharedStylesHost), ɵɵinject(APP_ID), ɵɵinject(REMOVE_STYLES_ON_COMPONENT_DESTROY), ɵɵinject(DOCUMENT), ɵɵinject(NgZone), ɵɵinject(CSP_NONCE), ɵɵinject(TracingService, 8));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _DomRendererFactory2,
+    factory: _DomRendererFactory2.ɵfac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DomRendererFactory2, [{
+    type: Injectable
+  }], () => [{
+    type: EventManager
+  }, {
+    type: SharedStylesHost
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [APP_ID]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [REMOVE_STYLES_ON_COMPONENT_DESTROY]
+    }]
+  }, {
+    type: Document,
+    decorators: [{
+      type: Inject,
+      args: [DOCUMENT]
+    }]
+  }, {
+    type: NgZone
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [CSP_NONCE]
+    }]
+  }, {
+    type: TracingService,
+    decorators: [{
+      type: Inject,
+      args: [TracingService]
+    }, {
+      type: Optional
+    }]
+  }], null);
+})();
+var DefaultDomRenderer2 = class {
+  eventManager;
+  doc;
+  ngZone;
+  tracingService;
+  data = /* @__PURE__ */ Object.create(null);
+  throwOnSyntheticProps = true;
+  constructor(eventManager, doc, ngZone, tracingService) {
+    this.eventManager = eventManager;
+    this.doc = doc;
+    this.ngZone = ngZone;
+    this.tracingService = tracingService;
+  }
+  destroy() {
+  }
+  destroyNode = null;
+  createElement(name, namespace) {
+    if (namespace) {
+      return this.doc.createElementNS(NAMESPACE_URIS[namespace] || namespace, name);
+    }
+    return this.doc.createElement(name);
+  }
+  createComment(value) {
+    return this.doc.createComment(value);
+  }
+  createText(value) {
+    return this.doc.createTextNode(value);
+  }
+  appendChild(parent, newChild) {
+    const targetParent = isTemplateNode(parent) ? parent.content : parent;
+    targetParent.appendChild(newChild);
+  }
+  insertBefore(parent, newChild, refChild) {
+    if (parent) {
+      const targetParent = isTemplateNode(parent) ? parent.content : parent;
+      targetParent.insertBefore(newChild, refChild);
+    }
+  }
+  removeChild(_parent, oldChild) {
+    oldChild.remove();
+  }
+  selectRootElement(selectorOrNode, preserveContent) {
+    let el = typeof selectorOrNode === "string" ? this.doc.querySelector(selectorOrNode) : selectorOrNode;
+    if (!el) {
+      throw new RuntimeError(-5104, (typeof ngDevMode === "undefined" || ngDevMode) && `The selector "${selectorOrNode}" did not match any elements`);
+    }
+    if (!preserveContent) {
+      el.textContent = "";
+    }
+    return el;
+  }
+  parentNode(node) {
+    return node.parentNode;
+  }
+  nextSibling(node) {
+    return node.nextSibling;
+  }
+  setAttribute(el, name, value, namespace) {
+    if (namespace) {
+      name = namespace + ":" + name;
+      const namespaceUri = NAMESPACE_URIS[namespace];
+      if (namespaceUri) {
+        el.setAttributeNS(namespaceUri, name, value);
+      } else {
+        el.setAttribute(name, value);
+      }
+    } else {
+      el.setAttribute(name, value);
+    }
+  }
+  removeAttribute(el, name, namespace) {
+    if (namespace) {
+      const namespaceUri = NAMESPACE_URIS[namespace];
+      if (namespaceUri) {
+        el.removeAttributeNS(namespaceUri, name);
+      } else {
+        el.removeAttribute(`${namespace}:${name}`);
+      }
+    } else {
+      el.removeAttribute(name);
+    }
+  }
+  addClass(el, name) {
+    el.classList.add(name);
+  }
+  removeClass(el, name) {
+    el.classList.remove(name);
+  }
+  setStyle(el, style, value, flags) {
+    if (flags & (RendererStyleFlags2.DashCase | RendererStyleFlags2.Important)) {
+      el.style.setProperty(style, value, flags & RendererStyleFlags2.Important ? "important" : "");
+    } else {
+      el.style[style] = value;
+    }
+  }
+  removeStyle(el, style, flags) {
+    if (flags & RendererStyleFlags2.DashCase) {
+      el.style.removeProperty(style);
+    } else {
+      el.style[style] = "";
+    }
+  }
+  setProperty(el, name, value) {
+    if (el == null) {
+      return;
+    }
+    (typeof ngDevMode === "undefined" || ngDevMode) && this.throwOnSyntheticProps && checkNoSyntheticProp(name, "property");
+    el[name] = value;
+  }
+  setValue(node, value) {
+    node.nodeValue = value;
+  }
+  listen(target, event, callback, options) {
+    (typeof ngDevMode === "undefined" || ngDevMode) && this.throwOnSyntheticProps && checkNoSyntheticProp(event, "listener");
+    if (typeof target === "string") {
+      target = getDOM().getGlobalEventTarget(this.doc, target);
+      if (!target) {
+        throw new RuntimeError(5102, (typeof ngDevMode === "undefined" || ngDevMode) && `Unsupported event target ${target} for event ${event}`);
+      }
+    }
+    let wrappedCallback = this.decoratePreventDefault(callback);
+    if (this.tracingService?.wrapEventListener) {
+      wrappedCallback = this.tracingService.wrapEventListener(target, event, wrappedCallback);
+    }
+    return this.eventManager.addEventListener(target, event, wrappedCallback, options);
+  }
+  decoratePreventDefault(eventHandler) {
+    return (event) => {
+      if (event === "__ngUnwrap__") {
+        return eventHandler;
+      }
+      const allowDefaultBehavior = false ? this.ngZone.runGuarded(() => eventHandler(event)) : eventHandler(event);
+      if (allowDefaultBehavior === false) {
+        event.preventDefault();
+      }
+      return void 0;
+    };
+  }
+};
+var AT_CHARCODE = (() => "@".charCodeAt(0))();
+function checkNoSyntheticProp(name, nameKind) {
+  if (name.charCodeAt(0) === AT_CHARCODE) {
+    throw new RuntimeError(5105, `Unexpected synthetic ${nameKind} ${name} found. Please make sure that:
+  - Make sure \`provideAnimationsAsync()\`, \`provideAnimations()\` or \`provideNoopAnimations()\` call was added to a list of providers used to bootstrap an application.
+  - There is a corresponding animation configuration named \`${name}\` defined in the \`animations\` field of the \`@Component\` decorator (see https://angular.dev/api/core/Component#animations).`);
+  }
+}
+function isTemplateNode(node) {
+  return node.tagName === "TEMPLATE" && node.content !== void 0;
+}
+var ShadowDomRenderer = class extends DefaultDomRenderer2 {
+  hostEl;
+  sharedStylesHost;
+  shadowRoot;
+  constructor(eventManager, hostEl, component, doc, ngZone, nonce, tracingService, sharedStylesHost) {
+    super(eventManager, doc, ngZone, tracingService);
+    this.hostEl = hostEl;
+    this.sharedStylesHost = sharedStylesHost;
+    this.shadowRoot = hostEl.attachShadow({
+      mode: "open"
+    });
+    if (this.sharedStylesHost) {
+      this.sharedStylesHost.addHost(this.shadowRoot);
+    }
+    let styles = component.styles;
+    if (ngDevMode) {
+      const baseHref = getDOM().getBaseHref(doc) ?? "";
+      styles = addBaseHrefToCssSourceMap(baseHref, styles);
+    }
+    styles = shimStylesContent(component.id, styles);
+    for (const style of styles) {
+      const styleEl = document.createElement("style");
+      if (nonce) {
+        styleEl.setAttribute("nonce", nonce);
+      }
+      styleEl.textContent = style;
+      this.shadowRoot.appendChild(styleEl);
+    }
+    const styleUrls = component.getExternalStyles?.();
+    if (styleUrls) {
+      for (const styleUrl of styleUrls) {
+        const linkEl = createLinkElement(styleUrl, doc);
+        if (nonce) {
+          linkEl.setAttribute("nonce", nonce);
+        }
+        this.shadowRoot.appendChild(linkEl);
+      }
+    }
+  }
+  nodeOrShadowRoot(node) {
+    return node === this.hostEl ? this.shadowRoot : node;
+  }
+  appendChild(parent, newChild) {
+    return super.appendChild(this.nodeOrShadowRoot(parent), newChild);
+  }
+  insertBefore(parent, newChild, refChild) {
+    return super.insertBefore(this.nodeOrShadowRoot(parent), newChild, refChild);
+  }
+  removeChild(_parent, oldChild) {
+    return super.removeChild(null, oldChild);
+  }
+  parentNode(node) {
+    return this.nodeOrShadowRoot(super.parentNode(this.nodeOrShadowRoot(node)));
+  }
+  destroy() {
+    if (this.sharedStylesHost) {
+      this.sharedStylesHost.removeHost(this.shadowRoot);
+    }
+  }
+};
+var NoneEncapsulationDomRenderer = class extends DefaultDomRenderer2 {
+  sharedStylesHost;
+  removeStylesOnCompDestroy;
+  styles;
+  styleUrls;
+  constructor(eventManager, sharedStylesHost, component, removeStylesOnCompDestroy, doc, ngZone, tracingService, compId) {
+    super(eventManager, doc, ngZone, tracingService);
+    this.sharedStylesHost = sharedStylesHost;
+    this.removeStylesOnCompDestroy = removeStylesOnCompDestroy;
+    let styles = component.styles;
+    if (ngDevMode) {
+      const baseHref = getDOM().getBaseHref(doc) ?? "";
+      styles = addBaseHrefToCssSourceMap(baseHref, styles);
+    }
+    this.styles = compId ? shimStylesContent(compId, styles) : styles;
+    this.styleUrls = component.getExternalStyles?.(compId);
+  }
+  applyStyles() {
+    this.sharedStylesHost.addStyles(this.styles, this.styleUrls);
+  }
+  destroy() {
+    if (!this.removeStylesOnCompDestroy) {
+      return;
+    }
+    if (allLeavingAnimations.size === 0) {
+      this.sharedStylesHost.removeStyles(this.styles, this.styleUrls);
+    }
+  }
+};
+var EmulatedEncapsulationDomRenderer2 = class extends NoneEncapsulationDomRenderer {
+  contentAttr;
+  hostAttr;
+  constructor(eventManager, sharedStylesHost, component, appId, removeStylesOnCompDestroy, doc, ngZone, tracingService) {
+    const compId = appId + "-" + component.id;
+    super(eventManager, sharedStylesHost, component, removeStylesOnCompDestroy, doc, ngZone, tracingService, compId);
+    this.contentAttr = shimContentAttribute(compId);
+    this.hostAttr = shimHostAttribute(compId);
+  }
+  applyToHost(element) {
+    this.applyStyles();
+    this.setAttribute(element, this.hostAttr, "");
+  }
+  createElement(parent, name) {
+    const el = super.createElement(parent, name);
+    super.setAttribute(el, this.contentAttr, "");
+    return el;
+  }
+};
+
+// node_modules/@angular/platform-browser/fesm2022/_browser-chunk.mjs
+var BrowserDomAdapter = class _BrowserDomAdapter extends DomAdapter {
+  supportsDOMEvents = true;
+  static makeCurrent() {
+    setRootDomAdapter(new _BrowserDomAdapter());
+  }
+  onAndCancel(el, evt, listener, options) {
+    el.addEventListener(evt, listener, options);
+    return () => {
+      el.removeEventListener(evt, listener, options);
+    };
+  }
+  dispatchEvent(el, evt) {
+    el.dispatchEvent(evt);
+  }
+  remove(node) {
+    node.remove();
+  }
+  createElement(tagName, doc) {
+    doc = doc || this.getDefaultDocument();
+    return doc.createElement(tagName);
+  }
+  createHtmlDocument() {
+    return document.implementation.createHTMLDocument("fakeTitle");
+  }
+  getDefaultDocument() {
+    return document;
+  }
+  isElementNode(node) {
+    return node.nodeType === Node.ELEMENT_NODE;
+  }
+  isShadowRoot(node) {
+    return node instanceof DocumentFragment;
+  }
+  getGlobalEventTarget(doc, target) {
+    if (target === "window") {
+      return window;
+    }
+    if (target === "document") {
+      return doc;
+    }
+    if (target === "body") {
+      return doc.body;
+    }
+    return null;
+  }
+  getBaseHref(doc) {
+    const href = getBaseElementHref();
+    return href == null ? null : relativePath(href);
+  }
+  resetBaseElement() {
+    baseElement = null;
+  }
+  getUserAgent() {
+    return window.navigator.userAgent;
+  }
+  getCookie(name) {
+    return parseCookieValue(document.cookie, name);
+  }
+};
+var baseElement = null;
+function getBaseElementHref() {
+  baseElement = baseElement || document.head.querySelector("base");
+  return baseElement ? baseElement.getAttribute("href") : null;
+}
+function relativePath(url) {
+  return new URL(url, document.baseURI).pathname;
+}
+var BrowserGetTestability = class {
+  addToWindow(registry) {
+    _global["getAngularTestability"] = (elem, findInAncestors = true) => {
+      const testability = registry.findTestabilityInTree(elem, findInAncestors);
+      if (testability == null) {
+        throw new RuntimeError(5103, (typeof ngDevMode === "undefined" || ngDevMode) && "Could not find testability for element.");
+      }
+      return testability;
+    };
+    _global["getAllAngularTestabilities"] = () => registry.getAllTestabilities();
+    _global["getAllAngularRootElements"] = () => registry.getAllRootElements();
+    const whenAllStable = (callback) => {
+      const testabilities = _global["getAllAngularTestabilities"]();
+      let count = testabilities.length;
+      const decrement = function() {
+        count--;
+        if (count == 0) {
+          callback();
+        }
+      };
+      testabilities.forEach((testability) => {
+        testability.whenStable(decrement);
+      });
+    };
+    if (!_global["frameworkStabilizers"]) {
+      _global["frameworkStabilizers"] = [];
+    }
+    _global["frameworkStabilizers"].push(whenAllStable);
+  }
+  findTestabilityInTree(registry, elem, findInAncestors) {
+    if (elem == null) {
+      return null;
+    }
+    const t = registry.getTestability(elem);
+    if (t != null) {
+      return t;
+    } else if (!findInAncestors) {
+      return null;
+    }
+    if (getDOM().isShadowRoot(elem)) {
+      return this.findTestabilityInTree(registry, elem.host, true);
+    }
+    return this.findTestabilityInTree(registry, elem.parentElement, true);
+  }
+};
+var BrowserXhr = class _BrowserXhr {
+  build() {
+    return new XMLHttpRequest();
+  }
+  static ɵfac = function BrowserXhr_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _BrowserXhr)();
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _BrowserXhr,
+    factory: _BrowserXhr.ɵfac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BrowserXhr, [{
+    type: Injectable
+  }], null, null);
+})();
+var MODIFIER_KEYS = ["alt", "control", "meta", "shift"];
+var _keyMap = {
+  "\b": "Backspace",
+  "	": "Tab",
+  "": "Delete",
+  "\x1B": "Escape",
+  "Del": "Delete",
+  "Esc": "Escape",
+  "Left": "ArrowLeft",
+  "Right": "ArrowRight",
+  "Up": "ArrowUp",
+  "Down": "ArrowDown",
+  "Menu": "ContextMenu",
+  "Scroll": "ScrollLock",
+  "Win": "OS"
+};
+var MODIFIER_KEY_GETTERS = {
+  "alt": (event) => event.altKey,
+  "control": (event) => event.ctrlKey,
+  "meta": (event) => event.metaKey,
+  "shift": (event) => event.shiftKey
+};
+var KeyEventsPlugin = class _KeyEventsPlugin extends EventManagerPlugin {
+  constructor(doc) {
+    super(doc);
+  }
+  supports(eventName) {
+    return _KeyEventsPlugin.parseEventName(eventName) != null;
+  }
+  addEventListener(element, eventName, handler, options) {
+    const parsedEvent = _KeyEventsPlugin.parseEventName(eventName);
+    const outsideHandler = _KeyEventsPlugin.eventCallback(parsedEvent["fullKey"], handler, this.manager.getZone());
+    return this.manager.getZone().runOutsideAngular(() => {
+      return getDOM().onAndCancel(element, parsedEvent["domEventName"], outsideHandler, options);
+    });
+  }
+  static parseEventName(eventName) {
+    const parts = eventName.toLowerCase().split(".");
+    const domEventName = parts.shift();
+    if (parts.length === 0 || !(domEventName === "keydown" || domEventName === "keyup")) {
+      return null;
+    }
+    const key = _KeyEventsPlugin._normalizeKey(parts.pop());
+    let fullKey = "";
+    let codeIX = parts.indexOf("code");
+    if (codeIX > -1) {
+      parts.splice(codeIX, 1);
+      fullKey = "code.";
+    }
+    MODIFIER_KEYS.forEach((modifierName) => {
+      const index = parts.indexOf(modifierName);
+      if (index > -1) {
+        parts.splice(index, 1);
+        fullKey += modifierName + ".";
+      }
+    });
+    fullKey += key;
+    if (parts.length != 0 || key.length === 0) {
+      return null;
+    }
+    const result = {};
+    result["domEventName"] = domEventName;
+    result["fullKey"] = fullKey;
+    return result;
+  }
+  static matchEventFullKeyCode(event, fullKeyCode) {
+    let keycode = _keyMap[event.key] || event.key;
+    let key = "";
+    if (fullKeyCode.indexOf("code.") > -1) {
+      keycode = event.code;
+      key = "code.";
+    }
+    if (keycode == null || !keycode) return false;
+    keycode = keycode.toLowerCase();
+    if (keycode === " ") {
+      keycode = "space";
+    } else if (keycode === ".") {
+      keycode = "dot";
+    }
+    MODIFIER_KEYS.forEach((modifierName) => {
+      if (modifierName !== keycode) {
+        const modifierGetter = MODIFIER_KEY_GETTERS[modifierName];
+        if (modifierGetter(event)) {
+          key += modifierName + ".";
+        }
+      }
+    });
+    key += keycode;
+    return key === fullKeyCode;
+  }
+  static eventCallback(fullKey, handler, zone) {
+    return (event) => {
+      if (_KeyEventsPlugin.matchEventFullKeyCode(event, fullKey)) {
+        zone.runGuarded(() => handler(event));
+      }
+    };
+  }
+  static _normalizeKey(keyName) {
+    return keyName === "esc" ? "escape" : keyName;
+  }
+  static ɵfac = function KeyEventsPlugin_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _KeyEventsPlugin)(ɵɵinject(DOCUMENT));
+  };
+  static ɵprov = ɵɵdefineInjectable({
+    token: _KeyEventsPlugin,
+    factory: _KeyEventsPlugin.ɵfac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(KeyEventsPlugin, [{
+    type: Injectable
+  }], () => [{
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [DOCUMENT]
+    }]
+  }], null);
+})();
+function bootstrapApplication(rootComponent, options, context) {
+  return __async(this, null, function* () {
+    const config = __spreadValues({
+      rootComponent
+    }, createProvidersConfig(options, context));
+    if (false) {
+      yield resolveJitResources();
+    }
+    return internalCreateApplication(config);
+  });
+}
+function createApplication(options, context) {
+  return __async(this, null, function* () {
+    if (false) {
+      yield resolveJitResources();
+    }
+    return internalCreateApplication(createProvidersConfig(options, context));
+  });
+}
+function createProvidersConfig(options, context) {
+  return {
+    platformRef: context?.platformRef,
+    appProviders: [...BROWSER_MODULE_PROVIDERS, ...options?.providers ?? []],
+    platformProviders: INTERNAL_BROWSER_PLATFORM_PROVIDERS
+  };
+}
+function provideProtractorTestingSupport() {
+  return [...TESTABILITY_PROVIDERS];
+}
+function initDomAdapter() {
+  BrowserDomAdapter.makeCurrent();
+}
+function errorHandler() {
+  return new ErrorHandler();
+}
+function _document() {
+  setDocument(document);
+  return document;
+}
+var INTERNAL_BROWSER_PLATFORM_PROVIDERS = [{
+  provide: PLATFORM_ID,
+  useValue: PLATFORM_BROWSER_ID
+}, {
+  provide: PLATFORM_INITIALIZER,
+  useValue: initDomAdapter,
+  multi: true
+}, {
+  provide: DOCUMENT,
+  useFactory: _document
+}];
+var platformBrowser = createPlatformFactory(platformCore, "browser", INTERNAL_BROWSER_PLATFORM_PROVIDERS);
+var BROWSER_MODULE_PROVIDERS_MARKER = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "BrowserModule Providers Marker" : "");
+var TESTABILITY_PROVIDERS = [{
+  provide: TESTABILITY_GETTER,
+  useClass: BrowserGetTestability
+}, {
+  provide: TESTABILITY,
+  useClass: Testability
+}, {
+  provide: Testability,
+  useClass: Testability
+}];
+var BROWSER_MODULE_PROVIDERS = [{
+  provide: INJECTOR_SCOPE,
+  useValue: "root"
+}, {
+  provide: ErrorHandler,
+  useFactory: errorHandler
+}, {
+  provide: EVENT_MANAGER_PLUGINS,
+  useClass: DomEventsPlugin,
+  multi: true
+}, {
+  provide: EVENT_MANAGER_PLUGINS,
+  useClass: KeyEventsPlugin,
+  multi: true
+}, DomRendererFactory2, SharedStylesHost, EventManager, {
+  provide: RendererFactory2,
+  useExisting: DomRendererFactory2
+}, {
+  provide: XhrFactory,
+  useClass: BrowserXhr
+}, typeof ngDevMode === "undefined" || ngDevMode ? {
+  provide: BROWSER_MODULE_PROVIDERS_MARKER,
+  useValue: true
+} : []];
+var BrowserModule = class _BrowserModule {
+  constructor() {
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      const providersAlreadyPresent = inject(BROWSER_MODULE_PROVIDERS_MARKER, {
+        optional: true,
+        skipSelf: true
+      });
+      if (providersAlreadyPresent) {
+        throw new RuntimeError(5100, `Providers from the \`BrowserModule\` have already been loaded. If you need access to common directives such as NgIf and NgFor, import the \`CommonModule\` instead.`);
+      }
+    }
+  }
+  static ɵfac = function BrowserModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _BrowserModule)();
+  };
+  static ɵmod = ɵɵdefineNgModule({
+    type: _BrowserModule,
+    exports: [CommonModule, ApplicationModule]
+  });
+  static ɵinj = ɵɵdefineInjector({
+    providers: [...BROWSER_MODULE_PROVIDERS, ...TESTABILITY_PROVIDERS],
+    imports: [CommonModule, ApplicationModule]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BrowserModule, [{
+    type: NgModule,
+    args: [{
+      providers: [...BROWSER_MODULE_PROVIDERS, ...TESTABILITY_PROVIDERS],
+      exports: [CommonModule, ApplicationModule]
+    }]
+  }], () => [], null);
+})();
+
 export {
   getDOM,
-  setRootDomAdapter,
-  DomAdapter,
   PlatformLocation,
-  LOCATION_INITIALIZED,
-  BrowserPlatformLocation,
-  normalizeQueryParams,
-  LocationStrategy,
-  APP_BASE_HREF,
-  PathLocationStrategy,
-  Location,
-  HashLocationStrategy,
-  NumberFormatStyle,
-  Plural,
-  FormStyle,
-  TranslationWidth,
-  FormatWidth,
-  NumberSymbol,
-  WeekDay,
-  getLocaleId,
-  getLocaleDayPeriods,
-  getLocaleDayNames,
-  getLocaleMonthNames,
-  getLocaleEraNames,
-  getLocaleFirstDayOfWeek,
-  getLocaleWeekEndRange,
-  getLocaleDateFormat,
-  getLocaleTimeFormat,
-  getLocaleDateTimeFormat,
-  getLocaleNumberSymbol,
-  getLocaleNumberFormat,
-  getLocaleCurrencySymbol,
-  getLocaleCurrencyName,
-  getLocaleCurrencyCode2 as getLocaleCurrencyCode,
-  getLocalePluralCase2 as getLocalePluralCase,
-  getLocaleExtraDayPeriodRules,
-  getLocaleExtraDayPeriods,
-  getLocaleDirection,
-  getCurrencySymbol,
-  getNumberOfCurrencyDigits,
-  formatDate,
-  formatCurrency,
-  formatPercent,
-  formatNumber,
-  NgLocalization,
-  NgLocaleLocalization,
-  NgClass,
-  NgComponentOutlet,
-  NgForOfContext,
-  NgForOf,
-  NgIf,
-  NgIfContext,
-  NgSwitch,
-  NgSwitchCase,
-  NgSwitchDefault,
-  NgPlural,
-  NgPluralCase,
-  NgStyle,
-  NgTemplateOutlet,
-  AsyncPipe,
-  LowerCasePipe,
-  TitleCasePipe,
-  UpperCasePipe,
-  DATE_PIPE_DEFAULT_TIMEZONE,
-  DATE_PIPE_DEFAULT_OPTIONS,
-  DatePipe,
-  I18nPluralPipe,
-  I18nSelectPipe,
-  JsonPipe,
-  KeyValuePipe,
-  DecimalPipe,
-  PercentPipe,
-  CurrencyPipe,
-  SlicePipe,
-  CommonModule,
   parseCookieValue,
   XhrFactory,
-  PlatformNavigation,
-  registerLocaleData2 as registerLocaleData,
-  PLATFORM_BROWSER_ID,
-  PLATFORM_SERVER_ID,
-  isPlatformBrowser,
-  isPlatformServer,
-  VERSION,
-  ViewportScroller,
-  NullViewportScroller,
-  IMAGE_LOADER,
-  provideCloudflareLoader,
-  provideCloudinaryLoader,
-  provideImageKitLoader,
-  provideImgixLoader,
-  provideNetlifyLoader,
-  PRECONNECT_CHECK_BLOCKLIST,
-  NgOptimizedImage
+  EventManagerPlugin,
+  DomEventsPlugin,
+  EVENT_MANAGER_PLUGINS,
+  EventManager,
+  SharedStylesHost,
+  REMOVE_STYLES_ON_COMPONENT_DESTROY,
+  DomRendererFactory2,
+  BrowserDomAdapter,
+  BrowserGetTestability,
+  KeyEventsPlugin,
+  bootstrapApplication,
+  createApplication,
+  provideProtractorTestingSupport,
+  platformBrowser,
+  BrowserModule
 };
-/*! Bundled license information:
-
-@angular/common/fesm2022/location.mjs:
-@angular/common/fesm2022/common_module.mjs:
-@angular/common/fesm2022/xhr.mjs:
-@angular/common/fesm2022/platform_navigation.mjs:
-@angular/common/fesm2022/common.mjs:
-  (**
-   * @license Angular v20.3.16
-   * (c) 2010-2025 Google LLC. https://angular.dev/
-   * License: MIT
-   *)
-*/
-//# sourceMappingURL=chunk-ZK6Y4FEQ.js.map
+//# sourceMappingURL=chunk-YFT224FU.js.map

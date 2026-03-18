@@ -2323,7 +2323,7 @@ function patchCallbacks(api, target, targetName, method, callbacks) {
           } else if (prototype[callback]) {
             prototype[callback] = api.wrapWithCurrentZone(prototype[callback], source);
           }
-        } catch {
+        } catch (e) {
         }
       });
     }
@@ -2382,13 +2382,4 @@ function patchCommon(Zone2) {
 var Zone$1 = loadZone();
 patchCommon(Zone$1);
 patchBrowser(Zone$1);
-/*! Bundled license information:
-
-zone.js/fesm2015/zone.js:
-  (**
-   * @license Angular v<unknown>
-   * (c) 2010-2025 Google LLC. https://angular.io/
-   * License: MIT
-   *)
-*/
 //# sourceMappingURL=zone__js.js.map
