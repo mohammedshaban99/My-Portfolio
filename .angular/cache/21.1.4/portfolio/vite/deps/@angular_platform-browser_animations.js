@@ -1,29 +1,30 @@
 import {
   BrowserModule,
   DomRendererFactory2
-} from "./chunk-BBQZHK5F.js";
-import {
-  DOCUMENT
-} from "./chunk-EL2GJI7E.js";
+} from "./chunk-YFT224FU.js";
 import {
   ANIMATION_MODULE_TYPE,
+  DOCUMENT,
   Inject,
   Injectable,
   NgModule,
   NgZone,
   RendererFactory2,
   RuntimeError,
-  __objRest,
-  __spreadValues,
+  inject,
   performanceMarkFeature,
   setClassMetadata,
   ɵɵdefineInjectable,
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵinject
-} from "./chunk-R3JEYSTZ.js";
+} from "./chunk-JQZRKJUG.js";
+import {
+  __objRest,
+  __spreadValues
+} from "./chunk-WDMUDEB6.js";
 
-// node_modules/@angular/animations/fesm2022/private_export-faY_wCkZ.mjs
+// node_modules/@angular/animations/fesm2022/_private_export-chunk.mjs
 var AnimationMetadataType;
 (function(AnimationMetadataType2) {
   AnimationMetadataType2[AnimationMetadataType2["State"] = 0] = "State";
@@ -100,7 +101,6 @@ var NoopAnimationPlayer = class {
     }
     this._started = true;
   }
-  /** @internal */
   triggerMicrotask() {
     queueMicrotask(() => this._onFinish());
   }
@@ -138,7 +138,6 @@ var NoopAnimationPlayer = class {
   getPosition() {
     return this.totalTime ? this._position / this.totalTime : 1;
   }
-  /** @internal */
   triggerCallback(phaseName) {
     const methods = phaseName == "start" ? this._onStartFns : this._onDoneFns;
     methods.forEach((fn) => fn());
@@ -269,7 +268,6 @@ var AnimationGroupPlayer = class {
       }
     });
   }
-  /** @internal */
   triggerCallback(phaseName) {
     const methods = phaseName == "start" ? this._onStartFns : this._onDoneFns;
     methods.forEach((fn) => fn());
@@ -278,7 +276,7 @@ var AnimationGroupPlayer = class {
 };
 var ɵPRE_STYLE = "!";
 
-// node_modules/@angular/animations/fesm2022/util-D9FfmVnv.mjs
+// node_modules/@angular/animations/fesm2022/_util-chunk.mjs
 var LINE_START = "\n - ";
 function invalidTimingValue(exp) {
   return new RuntimeError(3e3, ngDevMode && `The provided timing value "${exp}" is invalid.`);
@@ -555,13 +553,13 @@ function _convertTimeValueToMS(value, unit) {
 function resolveTiming(timings, errors, allowNegativeValues) {
   return timings.hasOwnProperty("duration") ? timings : parseTimeExpression(timings, errors, allowNegativeValues);
 }
+var PARSE_TIME_EXPRESSION_REGEX = /^(-?[\.\d]+)(m?s)(?:\s+(-?[\.\d]+)(m?s))?(?:\s+([-a-z]+(?:\(.+?\))?))?$/i;
 function parseTimeExpression(exp, errors, allowNegativeValues) {
-  const regex = /^(-?[\.\d]+)(m?s)(?:\s+(-?[\.\d]+)(m?s))?(?:\s+([-a-z]+(?:\(.+?\))?))?$/i;
   let duration;
   let delay = 0;
   let easing = "";
   if (typeof exp === "string") {
-    const matches = exp.match(regex);
+    const matches = exp.match(PARSE_TIME_EXPRESSION_REGEX);
     if (matches === null) {
       errors.push(invalidTimingValue(exp));
       return {
@@ -736,41 +734,21 @@ function computeStyle(element, prop) {
 
 // node_modules/@angular/animations/fesm2022/browser.mjs
 var NoopAnimationDriver = class _NoopAnimationDriver {
-  /**
-   * @returns Whether `prop` is a valid CSS property
-   */
   validateStyleProperty(prop) {
     return validateStyleProperty(prop);
   }
-  /**
-   *
-   * @returns Whether elm1 contains elm2.
-   */
   containsElement(elm1, elm2) {
     return containsElement(elm1, elm2);
   }
-  /**
-   * @returns Rhe parent of the given element or `null` if the element is the `document`
-   */
   getParentElement(element) {
     return getParentElement(element);
   }
-  /**
-   * @returns The result of the query selector on the element. The array will contain up to 1 item
-   *     if `multi` is  `false`.
-   */
   query(element, selector, multi) {
     return invokeQuery(element, selector, multi);
   }
-  /**
-   * @returns The `defaultValue` or empty string
-   */
   computeStyle(element, prop, defaultValue) {
     return defaultValue || "";
   }
-  /**
-   * @returns An `NoopAnimationPlayer`
-   */
   animate(element, keyframes, duration, delay, easing, previousPlayers = [], scrubberAccessRequested) {
     return new NoopAnimationPlayer(duration, delay);
   }
@@ -788,9 +766,6 @@ var NoopAnimationDriver = class _NoopAnimationDriver {
   }], null, null);
 })();
 var AnimationDriver = class {
-  /**
-   * @deprecated Use the NoopAnimationDriver class.
-   */
   static NOOP = new NoopAnimationDriver();
 };
 var AnimationStyleNormalizer = class {
@@ -2096,13 +2071,7 @@ function checkNonAnimatableInTimelines(timelines, triggerName, driver) {
   if (!driver.validateAnimatableStyleProperty) {
     return;
   }
-  const allowedNonAnimatableProps = /* @__PURE__ */ new Set([
-    // 'easing' is a utility/synthetic prop we use to represent
-    // easing functions, it represents a property of the animation
-    // which is not animatable but different values can be used
-    // in different steps
-    "easing"
-  ]);
+  const allowedNonAnimatableProps = /* @__PURE__ */ new Set(["easing"]);
   const invalidNonAnimatableProps = /* @__PURE__ */ new Set();
   timelines.forEach(({
     keyframes
@@ -2743,10 +2712,8 @@ var TransitionAnimationEngine = class {
   namespacesByHostElement = /* @__PURE__ */ new Map();
   collectedEnterElements = [];
   collectedLeaveElements = [];
-  // this method is designed to be overridden by the code that uses this engine
   onRemovalComplete = (element, context) => {
   };
-  /** @internal */
   _onRemovalComplete(element, context) {
     this.onRemovalComplete(element, context);
   }
@@ -3520,7 +3487,6 @@ var TransitionAnimationPlayer = class {
   getPosition() {
     return this.queued ? 0 : this._player.getPosition();
   }
-  /** @internal */
   triggerCallback(phaseName) {
     const p = this._player;
     if (p.triggerCallback) {
@@ -3657,7 +3623,6 @@ var AnimationEngine = class {
   _transitionEngine;
   _timelineEngine;
   _triggerCache = {};
-  // this method is designed to be overridden by the code that uses this engine
   onRemovalComplete = (element, context) => {
   };
   constructor(doc, _driver, _normalizer) {
@@ -3825,13 +3790,9 @@ var WebAnimationsPlayer = class {
   _started = false;
   _destroyed = false;
   _finalKeyframe;
-  // the following original fns are persistent copies of the _onStartFns and _onDoneFns
-  // and are used to reset the fns to their original values upon reset()
-  // (since the _onStartFns and _onDoneFns get deleted after they are called)
   _originalOnDoneFns = [];
   _originalOnStartFns = [];
-  // using non-null assertion because it's re(set) by init();
-  domPlayer;
+  domPlayer = null;
   time = 0;
   parentPlayer = null;
   currentSnapshot = /* @__PURE__ */ new Map();
@@ -3852,26 +3813,34 @@ var WebAnimationsPlayer = class {
     }
   }
   init() {
-    this._buildPlayer();
+    if (!this._buildPlayer()) {
+      return;
+    }
     this._preparePlayerBeforeStart();
   }
   _buildPlayer() {
-    if (this._initialized) return;
+    if (this._initialized) return this.domPlayer;
     this._initialized = true;
     const keyframes = this.keyframes;
-    this.domPlayer = this._triggerWebAnimation(this.element, keyframes, this.options);
+    const animation = this._triggerWebAnimation(this.element, keyframes, this.options);
+    if (!animation) {
+      this._onFinish();
+      return null;
+    }
+    this.domPlayer = animation;
     this._finalKeyframe = keyframes.length ? keyframes[keyframes.length - 1] : /* @__PURE__ */ new Map();
     const onFinish = () => this._onFinish();
-    this.domPlayer.addEventListener("finish", onFinish);
+    animation.addEventListener("finish", onFinish);
     this.onDestroy(() => {
-      this.domPlayer.removeEventListener("finish", onFinish);
+      animation.removeEventListener("finish", onFinish);
     });
+    return animation;
   }
   _preparePlayerBeforeStart() {
     if (this._delay) {
       this._resetDomPlayerState();
     } else {
-      this.domPlayer.pause();
+      this.domPlayer?.pause();
     }
   }
   _convertKeyframesToObject(keyframes) {
@@ -3881,9 +3850,13 @@ var WebAnimationsPlayer = class {
     });
     return kfs;
   }
-  /** @internal */
   _triggerWebAnimation(element, keyframes, options) {
-    return element.animate(this._convertKeyframesToObject(keyframes), options);
+    const keyframesObject = this._convertKeyframesToObject(keyframes);
+    try {
+      return element.animate(keyframesObject, options);
+    } catch (e) {
+      return null;
+    }
   }
   onStart(fn) {
     this._originalOnStartFns.push(fn);
@@ -3897,7 +3870,10 @@ var WebAnimationsPlayer = class {
     this._onDestroyFns.push(fn);
   }
   play() {
-    this._buildPlayer();
+    const player = this._buildPlayer();
+    if (!player) {
+      return;
+    }
     if (!this.hasStarted()) {
       this._onStartFns.forEach((fn) => fn());
       this._onStartFns = [];
@@ -3906,14 +3882,15 @@ var WebAnimationsPlayer = class {
         this._specialStyles.start();
       }
     }
-    this.domPlayer.play();
+    player.play();
   }
   pause() {
     this.init();
-    this.domPlayer.pause();
+    this.domPlayer?.pause();
   }
   finish() {
     this.init();
+    if (!this.domPlayer) return;
     if (this._specialStyles) {
       this._specialStyles.finish();
     }
@@ -3929,9 +3906,7 @@ var WebAnimationsPlayer = class {
     this._onDoneFns = this._originalOnDoneFns;
   }
   _resetDomPlayerState() {
-    if (this.domPlayer) {
-      this.domPlayer.cancel();
-    }
+    this.domPlayer?.cancel();
   }
   restart() {
     this.reset();
@@ -3953,12 +3928,17 @@ var WebAnimationsPlayer = class {
     }
   }
   setPosition(p) {
-    if (this.domPlayer === void 0) {
+    if (!this.domPlayer) {
       this.init();
     }
-    this.domPlayer.currentTime = p * this.time;
+    if (this.domPlayer) {
+      this.domPlayer.currentTime = p * this.time;
+    }
   }
   getPosition() {
+    if (!this.domPlayer) {
+      return this._initialized ? 1 : 0;
+    }
     return +(this.domPlayer.currentTime ?? 0) / this.time;
   }
   get totalTime() {
@@ -3976,7 +3956,6 @@ var WebAnimationsPlayer = class {
     }
     this.currentSnapshot = styles;
   }
-  /** @internal */
   triggerCallback(phaseName) {
     const methods = phaseName === "start" ? this._onStartFns : this._onDoneFns;
     methods.forEach((fn) => fn());
@@ -4039,8 +4018,6 @@ var BaseAnimationRenderer = class {
   delegate;
   engine;
   _onDestroy;
-  // We need to explicitly type this property because of an api-extractor bug
-  // See https://github.com/microsoft/rushstack/issues/4390
   ɵtype = 0;
   constructor(namespaceId, delegate, engine, _onDestroy) {
     this.namespaceId = namespaceId;
@@ -4080,7 +4057,11 @@ var BaseAnimationRenderer = class {
     this.delegate.insertBefore(parent, newChild, refChild);
     this.engine.onInsert(this.namespaceId, newChild, parent, isMove);
   }
-  removeChild(parent, oldChild, isHostElement) {
+  removeChild(parent, oldChild, isHostElement, requireSynchronousElementRemoval) {
+    if (requireSynchronousElementRemoval) {
+      this.delegate.removeChild(parent, oldChild, isHostElement, requireSynchronousElementRemoval);
+      return;
+    }
     if (this.parentNode(oldChild)) {
       this.engine.onRemove(this.namespaceId, oldChild, this.delegate);
     }
@@ -4238,7 +4219,6 @@ var AnimationRendererFactory = class {
       this._microtaskId++;
     });
   }
-  /** @internal */
   scheduleListenerCallback(count, fn, data) {
     if (count >= 0 && count < this._microtaskId) {
       this._zone.run(() => fn(data));
@@ -4273,10 +4253,6 @@ var AnimationRendererFactory = class {
   whenRenderingDone() {
     return this.engine.whenRenderingDone();
   }
-  /**
-   * Used during HMR to clear any cached data about a component.
-   * @param componentId ID of the component that is being replaced.
-   */
   componentReplaced(componentId) {
     this.engine.flush();
     this.delegate.componentReplaced?.(componentId);
@@ -4285,9 +4261,6 @@ var AnimationRendererFactory = class {
 
 // node_modules/@angular/platform-browser/fesm2022/animations.mjs
 var InjectableAnimationEngine = class _InjectableAnimationEngine extends AnimationEngine {
-  // The `ApplicationRef` is injected here explicitly to force the dependency ordering.
-  // Since the `ApplicationRef` should be created earlier before the `AnimationEngine`, they
-  // both have `ngOnDestroy` hooks and `flush()` must be called after all views are destroyed.
   constructor(doc, driver, normalizer) {
     super(doc, driver, normalizer);
   }
@@ -4320,8 +4293,8 @@ var InjectableAnimationEngine = class _InjectableAnimationEngine extends Animati
 function instantiateDefaultStyleNormalizer() {
   return new WebAnimationsStyleNormalizer();
 }
-function instantiateRendererFactory(renderer, engine, zone) {
-  return new AnimationRendererFactory(renderer, engine, zone);
+function instantiateRendererFactory() {
+  return new AnimationRendererFactory(inject(DomRendererFactory2), inject(AnimationEngine), inject(NgZone));
 }
 var SHARED_ANIMATION_PROVIDERS = [{
   provide: AnimationStyleNormalizer,
@@ -4331,8 +4304,7 @@ var SHARED_ANIMATION_PROVIDERS = [{
   useClass: InjectableAnimationEngine
 }, {
   provide: RendererFactory2,
-  useFactory: instantiateRendererFactory,
-  deps: [DomRendererFactory2, AnimationEngine, NgZone]
+  useFactory: instantiateRendererFactory
 }];
 var BROWSER_NOOP_ANIMATIONS_PROVIDERS = [{
   provide: AnimationDriver,
@@ -4341,35 +4313,14 @@ var BROWSER_NOOP_ANIMATIONS_PROVIDERS = [{
   provide: ANIMATION_MODULE_TYPE,
   useValue: "NoopAnimations"
 }, ...SHARED_ANIMATION_PROVIDERS];
-var BROWSER_ANIMATIONS_PROVIDERS = [
-  // Note: the `ngServerMode` happen inside factories to give the variable time to initialize.
-  {
-    provide: AnimationDriver,
-    useFactory: () => false ? new NoopAnimationDriver() : new WebAnimationsDriver()
-  },
-  {
-    provide: ANIMATION_MODULE_TYPE,
-    useFactory: () => false ? "NoopAnimations" : "BrowserAnimations"
-  },
-  ...SHARED_ANIMATION_PROVIDERS
-];
+var BROWSER_ANIMATIONS_PROVIDERS = [{
+  provide: AnimationDriver,
+  useFactory: () => false ? new NoopAnimationDriver() : new WebAnimationsDriver()
+}, {
+  provide: ANIMATION_MODULE_TYPE,
+  useFactory: () => false ? "NoopAnimations" : "BrowserAnimations"
+}, ...SHARED_ANIMATION_PROVIDERS];
 var BrowserAnimationsModule = class _BrowserAnimationsModule {
-  /**
-   * Configures the module based on the specified object.
-   *
-   * @param config Object used to configure the behavior of the `BrowserAnimationsModule`.
-   * @see {@link BrowserAnimationsModuleConfig}
-   *
-   * @usageNotes
-   * When registering the `BrowserAnimationsModule`, you can use the `withConfig`
-   * function as follows:
-   * ```ts
-   * @NgModule({
-   *   imports: [BrowserAnimationsModule.withConfig(config)]
-   * })
-   * class MyNgModule {}
-   * ```
-   */
   static withConfig(config) {
     return {
       ngModule: _BrowserAnimationsModule,
@@ -4434,16 +4385,4 @@ export {
   provideNoopAnimations,
   InjectableAnimationEngine as ɵInjectableAnimationEngine
 };
-/*! Bundled license information:
-
-@angular/animations/fesm2022/private_export-faY_wCkZ.mjs:
-@angular/animations/fesm2022/util-D9FfmVnv.mjs:
-@angular/animations/fesm2022/browser.mjs:
-@angular/platform-browser/fesm2022/animations.mjs:
-  (**
-   * @license Angular v19.2.18
-   * (c) 2010-2025 Google LLC. https://angular.io/
-   * License: MIT
-   *)
-*/
 //# sourceMappingURL=@angular_platform-browser_animations.js.map
